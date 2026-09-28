@@ -1,0 +1,55 @@
+classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_uefa.csv"), DataFrame)
+matchs = CSV.read(joinpath(@__DIR__, "../fichier/matchs.csv"), DataFrame)
+classement.Club = String.(classement.Club)
+classement.Pays = String.(classement.Pays)
+
+
+mutable struct Equipe
+    club::String #Nom du club
+    pays::String #Pays du club
+    mj::Float64 #Nombre de matchs joués
+    points::Float64 
+    buts_pour::Float64
+    buts_contre::Float64
+    db::Float64 #Différence de buts
+    poids::Float64 #Poids du club
+end
+
+
+function equipes()
+    dic::Dict{String,Equipe} = Dict()
+    force_brut = 0.8 * classement.Coeff_club + 0.2 * classement.Coeff_pays
+    moyenne = mean(force_brut)
+    ect = std(force_brut)
+    for i in range(1,36)
+        n = classement.Club[i]
+        p = classement.Pays[i]
+        poids = round((force_brut[i] - moyenne)/ect,digits = 5)
+        dic[n] = Equipe(n,p,0,0,0,0,0,poids)
+    end
+    return(dic)
+end
+
+function modif_equipe(domicile::Equipe,exterieure::Equipe,buts_dom,buts_ext)
+    domicile.buts_pour += buts_dom
+    domicile.buts_contre += buts_ext
+    exterieure.buts_pour += buts_ext
+    exterieure.buts_contre += buts_dom
+    diff_buts(domicile)
+    diff_buts(exterieure)
+    if buts_dom > buts_ext
+        domicile.points += 3
+    elseif buts_dom == buts_ext
+        domicile.points += 1
+        exterieure.points += 1
+    else
+        exterieure.points += 3
+    end
+    domicile.mj += 1
+    exterieure.mj += 1
+    return(domicile,exterieure)
+end
+
+function diff_buts(equipe::Equipe)
+    equipe.db = equipe.buts_pour - equipe.buts_contre    
+end

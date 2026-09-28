@@ -1,5 +1,9 @@
 module SimulationsProjet
 
-include("toto.jl")
+using CSV, DataFrames, Statistics, Distributions, Random
+
+include("equipe.jl")
+include("simulation.jl")
+
 
 end

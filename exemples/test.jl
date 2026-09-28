@@ -1,1 +1,25 @@
 using SimulationsProjet
+
+println("===================================")
+println("Test de la fonction simul_reguliere")
+println("===================================")
+classement = SimulationsProjet.simul_reguliere()
+for (rang, equipe) in enumerate(classement)
+    println(rang, ". ", equipe.club, " - ", equipe.points, " pts - ", equipe.buts_pour, " bp - ", equipe.buts_contre, " bc")
+end
+println("===================================")
+println("===================================")
+println("Test de la fonction simul_elimination_directe")
+println("===================================")
+vainqueur = SimulationsProjet.simul_elimination_directe(classement)
+println("Vainqueur : ",vainqueur)
+println("===================================")
+println("===================================")
+println("Test de la fonction simuler_n_fois")
+println("===================================")
+rangs = SimulationsProjet.simuler_n_fois(100000)
+resultat = SimulationsProjet.classement_moyen(rangs)
+for (position, (club, rang_moyen)) in enumerate(resultat)
+    println(position, ". ", club, " - rang moyen : ", round(rang_moyen, digits=2))
+end
+println("===================================")
