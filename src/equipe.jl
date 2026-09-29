@@ -1,5 +1,4 @@
 classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_uefa.csv"), DataFrame)
-matchs = CSV.read(joinpath(@__DIR__, "../fichier/matchs.csv"), DataFrame)
 classement.Club = String.(classement.Club)
 classement.Pays = String.(classement.Pays)
 
@@ -13,6 +12,7 @@ mutable struct Equipe
     buts_contre::Float64
     db::Float64 #Différence de buts
     poids::Float64 #Poids du club
+    parcours::Int64 #0=éliminer en phase de ligue, 1 = éliminer en barrage, ..., 6 = vainqueur
 end
 
 
@@ -25,7 +25,7 @@ function equipes()
         n = classement.Club[i]
         p = classement.Pays[i]
         poids = round((force_brut[i] - moyenne)/ect,digits = 5)
-        dic[n] = Equipe(n,p,0,0,0,0,0,poids)
+        dic[n] = Equipe(n,p,0,0,0,0,0,poids,0)
     end
     return(dic)
 end
