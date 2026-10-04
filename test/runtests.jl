@@ -2,5 +2,5 @@ using SimulationsProjet
 using Test
 
 @testset "SimulationsProjet.jl" begin
-    # Write your tests here.
+    include("test_regles.jl")
 end
