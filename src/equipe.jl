@@ -1,6 +1,8 @@
 classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_uefa.csv"), DataFrame)
 classement.Club = String.(classement.Club)
 classement.Pays = String.(classement.Pays)
+stats_tab = CSV.read(joinpath(@__DIR__, "../fichier/tirs_au_but.csv"), DataFrame)
+stats_tab.Club = String.(stats_tab.Club)
 
 
 mutable struct Equipe
@@ -13,6 +15,21 @@ mutable struct Equipe
     db::Float64 #Différence de buts
     poids::Float64 #Poids du club
     parcours::Int64 #0=éliminer en phase de ligue, 1 = éliminer en barrage, ..., 6 = vainqueur
+    proba_tab::Float64
+end
+
+#Crée une équipe sans proba_tab donnée, elle vaut alors 0.75
+Equipe(club, pays, mj, points, buts_pour, buts_contre, db, poids, parcours) = Equipe(club, pays, mj, points, buts_pour, buts_contre, db, poids, parcours, 0.75)
+
+#Calcule la proba de marquer un tir au but d'un club depuis fichier/tirs_au_but.csv, ramenée vers 0.75 quand il y a peu de tirs (0.75 si le club est absent)
+function proba_tab(club::String)
+    ligne = findfirst(==(club), stats_tab.Club)
+    if ligne === nothing
+        return(0.75)
+    end
+    tentes = stats_tab.tirs_tentes[ligne]
+    reussis = stats_tab.tirs_reussis[ligne]
+    return((reussis + 0.75 * 10) / (tentes + 10))
 end
 
 
@@ -25,7 +42,7 @@ function equipes()
         n = classement.Club[i]
         p = classement.Pays[i]
         poids = round((force_brut[i] - moyenne)/ect,digits = 5)
-        dic[n] = Equipe(n,p,0,0,0,0,0,poids,0)
+        dic[n] = Equipe(n,p,0,0,0,0,0,poids,0,proba_tab(n))
     end
     return(dic)
 end

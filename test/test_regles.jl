@@ -49,15 +49,37 @@ end
 end
 
 @testset "tirs_au_but" begin
-    @test S.tirs_au_but() isa Bool
+    A = equipe("A", 0.0)
+    B = equipe("B", 0.0)
+    @test S.tirs_au_but(A, B) isa Bool
     n = 20000
     victoires = 0
     for i in 1:n
-        if S.tirs_au_but()
+        if S.tirs_au_but(A, B)
             victoires += 1
         end
     end
     @test isapprox(victoires / n, 0.5, atol = 0.02)
+
+    A.proba_tab = 1.0
+    B.proba_tab = 0.0
+    @test S.tirs_au_but(A, B) == true
+    @test S.tirs_au_but(B, A) == false
+end
+
+@testset "proba_tab" begin
+    @test equipe("A", 0.0).proba_tab == 0.75
+    @test S.proba_tab("Inconnu") == 0.75
+    @test S.equipes()["Bayern"].proba_tab == S.proba_tab("Bayern")
+
+    ligne = findfirst(==("Bayern"), S.stats_tab.Club)
+    tentes = S.stats_tab.tirs_tentes[ligne]
+    reussis = S.stats_tab.tirs_reussis[ligne]
+    S.stats_tab.tirs_tentes[ligne] = 10
+    S.stats_tab.tirs_reussis[ligne] = 10
+    @test S.proba_tab("Bayern") == 0.875
+    S.stats_tab.tirs_tentes[ligne] = tentes
+    S.stats_tab.tirs_reussis[ligne] = reussis
 end
 
 @testset "match_aller_retour" begin
