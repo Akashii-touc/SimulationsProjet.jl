@@ -1,42 +1,50 @@
+<<<<<<< Updated upstream
 classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_uefa.csv"), DataFrame)
 classement.Club = String.(classement.Club)
 classement.Pays = String.(classement.Pays)
+=======
+classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_uefa.csv"), DataFrame; stringtype = String)
+>>>>>>> Stashed changes
 
+force_brut = 0.8 * classement.Coeff_club + 0.2 * classement.Coeff_pays
+poids_clubs = round.((force_brut .- mean(force_brut)) ./ (maximum(force_brut) - minimum(force_brut)), digits = 5)
 
 mutable struct Equipe
     club::String #Nom du club
     pays::String #Pays du club
-    mj::Float64 #Nombre de matchs joués
-    points::Float64 
-    buts_pour::Float64
-    buts_contre::Float64
-    db::Float64 #Différence de buts
+    mj::Int64 #Nombre de matchs joués
+    points::Int64
+    buts_pour::Int64
+    buts_contre::Int64
+    db::Int64 #Différence de buts
     poids::Float64 #Poids du club
     parcours::Int64 #0=éliminer en phase de ligue, 1 = éliminer en barrage, ..., 6 = vainqueur
 end
 
 
 function equipes()
-    dic::Dict{String,Equipe} = Dict()
-    force_brut = 0.8 * classement.Coeff_club + 0.2 * classement.Coeff_pays
-    moyenne = mean(force_brut)
-    ect = std(force_brut)
-    for i in range(1,36)
+    dic = Dict{String,Equipe}()
+    for i in 1:36
         n = classement.Club[i]
+<<<<<<< Updated upstream
         p = classement.Pays[i]
         poids = round((force_brut[i] - moyenne)/ect,digits = 5)
         dic[n] = Equipe(n,p,0,0,0,0,0,poids,0)
+=======
+        dic[n] = Equipe(n, classement.Pays[i], 0, 0, 0, 0, 0, poids_clubs[i], 0)
+>>>>>>> Stashed changes
     end
     return(dic)
 end
 
-function modif_equipe(domicile::Equipe,exterieure::Equipe,buts_dom,buts_ext)
+
+function modif_equipe(domicile::Equipe, exterieure::Equipe, buts_dom, buts_ext)
     domicile.buts_pour += buts_dom
     domicile.buts_contre += buts_ext
     exterieure.buts_pour += buts_ext
     exterieure.buts_contre += buts_dom
-    diff_buts(domicile)
-    diff_buts(exterieure)
+    domicile.db += buts_dom - buts_ext
+    exterieure.db += buts_ext - buts_dom
     if buts_dom > buts_ext
         domicile.points += 3
     elseif buts_dom == buts_ext
@@ -47,9 +55,4 @@ function modif_equipe(domicile::Equipe,exterieure::Equipe,buts_dom,buts_ext)
     end
     domicile.mj += 1
     exterieure.mj += 1
-    return(domicile,exterieure)
-end
-
-function diff_buts(equipe::Equipe)
-    equipe.db = equipe.buts_pour - equipe.buts_contre    
 end
