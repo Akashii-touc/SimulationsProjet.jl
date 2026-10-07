@@ -18,18 +18,20 @@ function score_match(dom::Equipe, ext::Equipe, modele::String)
 end
 
 
-function score_prolongation(equipe_A::Equipe, equipe_B::Equipe, modele::String)
-    return(buts(equipe_A, equipe_B, modele; avantage_B = 1.2, duree = 1/3))
+#30 minutes de jeu chez dom, donc durée 1/3
+function score_prolongation(dom::Equipe, ext::Equipe, modele::String)
+    return(buts(dom, ext, modele; avantage_A = 1.2, duree = 1/3))
 end
 
 
+#A est l'équipe la mieux classée : aller chez B, retour puis prolongation éventuelle chez A
 function simul_aller_retour(equipes::Vector{Equipe}, modele::String)
     resultat = Equipe[]
     for i in 1:(length(equipes) ÷ 2)
         equipe_A = equipes[i]
         equipe_B = equipes[length(equipes) - i + 1]
-        aller_A, aller_B = score_match(equipe_A, equipe_B, modele)
-        retour_B, retour_A = score_match(equipe_B, equipe_A, modele)
+        aller_B, aller_A = score_match(equipe_B, equipe_A, modele)
+        retour_A, retour_B = score_match(equipe_A, equipe_B, modele)
         buts_A = aller_A + retour_A
         buts_B = aller_B + retour_B
         if buts_A == buts_B
