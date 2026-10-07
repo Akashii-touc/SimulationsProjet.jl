@@ -17,22 +17,22 @@ end
 @testset "buts" begin
     A = equipe("A", 0.0)
     B = equipe("B", 0.0)
-    for modele in ["Poisson", "PoissonBivariee", "BinomialeNegative"]
+    for modele in [S.ModelePoisson(), S.ModelePoissonBivariee(), S.ModeleBinomialeNegative()]
         a, b = S.buts(A, B, modele)
         @test a isa Integer && b isa Integer
         @test a >= 0 && b >= 0
     end
 
-    moy_A, moy_B = moyennes(() -> S.buts(A, B, "Poisson"))
+    moy_A, moy_B = moyennes(() -> S.buts(A, B, S.ModelePoisson()))
     @test isapprox(moy_A, 1.0, atol = 0.05)
     @test isapprox(moy_B, 1.0, atol = 0.05)
 
-    moy_A, moy_B = moyennes(() -> S.buts(A, B, "BinomialeNegative"))
+    moy_A, moy_B = moyennes(() -> S.buts(A, B, S.ModeleBinomialeNegative()))
     @test isapprox(moy_A, 1.0, atol = 0.05)
     @test isapprox(moy_B, 1.0, atol = 0.05)
 
     fort = equipe("Fort", 0.5)
-    moy_A, moy_B = moyennes(() -> S.buts(fort, B, "Poisson"))
+    moy_A, moy_B = moyennes(() -> S.buts(fort, B, S.ModelePoisson()))
     @test isapprox(moy_A, exp(0.5), atol = 0.05)
     @test isapprox(moy_B, exp(-0.5), atol = 0.05)
 end
@@ -40,7 +40,7 @@ end
 @testset "score_match" begin
     A = equipe("A", 0.0)
     B = equipe("B", 0.0)
-    moy_dom, moy_ext = moyennes(() -> S.score_match(A, B, "Poisson"))
+    moy_dom, moy_ext = moyennes(() -> S.score_match(A, B, S.ModelePoisson()))
     @test moy_dom > moy_ext
     @test isapprox(moy_dom, 1.2, atol = 0.05)
     @test isapprox(moy_ext, 1.0, atol = 0.05)
@@ -49,7 +49,7 @@ end
 @testset "score_prolongation" begin
     A = equipe("A", 0.0)
     B = equipe("B", 0.0)
-    moy_dom, moy_ext = moyennes(() -> S.score_prolongation(A, B, "Poisson"))
+    moy_dom, moy_ext = moyennes(() -> S.score_prolongation(A, B, S.ModelePoisson()))
     @test isapprox(moy_dom, 1.2 / 3, atol = 0.03)
     @test isapprox(moy_ext, 1 / 3, atol = 0.03)
 end
@@ -104,7 +104,7 @@ end
 
 @testset "simul_aller_retour" begin
     equipes = [equipe(string(i), 0.0) for i in 1:8]
-    qualifiees = S.simul_aller_retour(equipes, "Poisson")
+    qualifiees = S.simul_aller_retour(equipes, S.ModelePoisson())
     @test length(qualifiees) == 4
     @test sum(e.parcours for e in equipes) == 4
     for i in 1:4
@@ -116,14 +116,14 @@ end
 @testset "simul_finale" begin
     A = equipe("A", 0.0)
     B = equipe("B", 0.0)
-    gagnant = S.simul_finale([A, B], "Poisson")
+    gagnant = S.simul_finale([A, B], S.ModelePoisson())
     @test gagnant === A || gagnant === B
     @test A.parcours + B.parcours == 1
 
     n = 20000
     victoires_A = 0
     for i in 1:n
-        if S.simul_finale([A, B], "Poisson") === A
+        if S.simul_finale([A, B], S.ModelePoisson()) === A
             victoires_A += 1
         end
     end

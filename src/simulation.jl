@@ -1,6 +1,6 @@
 calendrier = CSV.read(joinpath(@__DIR__, "../fichier/matchs.csv"), DataFrame; types = String)
 
-function simul_reguliere(modele::String)
+function simul_reguliere(modele::Modele)
     d = equipes()
     for journee in eachcol(calendrier)
         for match in journee
@@ -14,7 +14,7 @@ function simul_reguliere(modele::String)
 end
 
 
-function simul_elimination_directe(equipes::Vector{Equipe}, modele::String)
+function simul_elimination_directe(equipes::Vector{Equipe}, modele::Modele)
     for e in equipes[1:8]
         e.parcours += 2
     end
@@ -29,7 +29,7 @@ function simul_elimination_directe(equipes::Vector{Equipe}, modele::String)
 end
 
 
-function simuler_n_fois(n::Int, modele::String)
+function simuler_n_fois(n::Int, modele::Modele)
     dic = Dict{String, Tuple{Vector{Int}, Vector{Int}, Vector{Int}}}()
     for i in 1:n
         classement = simul_reguliere(modele)
