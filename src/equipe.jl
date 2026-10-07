@@ -1,13 +1,8 @@
-<<<<<<< Updated upstream
-classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_uefa.csv"), DataFrame)
-classement.Club = String.(classement.Club)
-classement.Pays = String.(classement.Pays)
-=======
-classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_uefa.csv"), DataFrame; stringtype = String)
->>>>>>> Stashed changes
+classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_club.csv"), DataFrame; stringtype = String)
 
 force_brut = 0.8 * classement.Coeff_club + 0.2 * classement.Coeff_pays
-poids_clubs = round.((force_brut .- mean(force_brut)) ./ (maximum(force_brut) - minimum(force_brut)), digits = 5)
+poids_clubs_coeff = round.((force_brut .- mean(force_brut)) ./ (maximum(force_brut) - minimum(force_brut)), digits = 5)
+
 
 mutable struct Equipe
     club::String #Nom du club
@@ -22,17 +17,16 @@ mutable struct Equipe
 end
 
 
-function equipes()
+function equipes(type_poids = "Coefficient_UEFA")
     dic = Dict{String,Equipe}()
     for i in 1:36
-        n = classement.Club[i]
-<<<<<<< Updated upstream
-        p = classement.Pays[i]
-        poids = round((force_brut[i] - moyenne)/ect,digits = 5)
-        dic[n] = Equipe(n,p,0,0,0,0,0,poids,0)
-=======
-        dic[n] = Equipe(n, classement.Pays[i], 0, 0, 0, 0, 0, poids_clubs[i], 0)
->>>>>>> Stashed changes
+        if type_poids == "Elo"
+            n = classement.Club[i]
+            dic[n] = Equipe(n, classement.Pays[i], 0, 0, 0, 0, 0, classement.Elo[i]/400, 0)
+        elseif type_poids == "Coefficient_UEFA"
+            n = classement.Club[i]
+            dic[n] = Equipe(n, classement.Pays[i], 0, 0, 0, 0, 0, poids_clubs_coeff[i], 0)
+        end
     end
     return(dic)
 end
