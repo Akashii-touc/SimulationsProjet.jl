@@ -21,8 +21,8 @@ function simul_aller_retour(equipes::Vector{Equipe}, modele::Modele)
     for i in 1:(length(equipes) ÷ 2)
         equipe_A = equipes[i]
         equipe_B = equipes[length(equipes) - i + 1]
-        aller_A, aller_B = score_match(equipe_A, equipe_B, modele)
-        retour_B, retour_A = score_match(equipe_B, equipe_A, modele)
+        aller_B, aller_A = score_match(equipe_B, equipe_A, modele)
+        retour_A, retour_B = score_match(equipe_A, equipe_B, modele)
         buts_A = aller_A + retour_A
         buts_B = aller_B + retour_B
         if buts_A == buts_B
@@ -52,9 +52,35 @@ function equipe_qualifiee(equipe_A::Equipe, equipe_B::Equipe, buts_A::Int64, but
         gagnante = equipe_A
     elseif buts_A < buts_B
         gagnante = equipe_B
+    elseif tirs_au_but(equipe_A, equipe_B)
+        gagnante = equipe_A
     else
-        gagnante = rand([equipe_A, equipe_B])
+        gagnante = equipe_B
     end
     gagnante.parcours += 1
     return(gagnante)
+end
+
+
+#5 tirs chacun puis mort subite, chaque équipe tire avec sa propre proba_tab (lue dans fichier/tirs_au_but.csv)
+function tirs_au_but(equipe_A::Equipe, equipe_B::Equipe)
+    tab_A = 0
+    tab_B = 0
+    for i in 1:5
+        if rand() < equipe_A.proba_tab
+            tab_A += 1
+        end
+        if rand() < equipe_B.proba_tab
+            tab_B += 1
+        end
+    end
+    while tab_A == tab_B
+        if rand() < equipe_A.proba_tab
+            tab_A += 1
+        end
+        if rand() < equipe_B.proba_tab
+            tab_B += 1
+        end
+    end
+    return(tab_A > tab_B)
 end
