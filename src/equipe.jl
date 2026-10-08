@@ -1,8 +1,8 @@
-classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_uefa.csv"), DataFrame; stringtype = String)
+classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_club.csv"), DataFrame; stringtype = String)
 stats_tab = CSV.read(joinpath(@__DIR__, "../fichier/tirs_au_but.csv"), DataFrame; stringtype = String)
 
 force_brut = 0.8 * classement.Coeff_club + 0.2 * classement.Coeff_pays
-poids_clubs = round.((force_brut .- mean(force_brut)) ./ (maximum(force_brut) - minimum(force_brut)), digits = 5)
+poids_clubs_coeff = round.((force_brut .- mean(force_brut)) ./ (maximum(force_brut) - minimum(force_brut)), digits = 5)
 
 mutable struct Equipe
     club::String #Nom du club
@@ -32,11 +32,22 @@ function proba_tab(club::String)
 end
 
 
-function equipes()
+#Poids d'un club selon type_poids : "Coefficient_UEFA" (coefficients club et pays) ou "Elo" (Elo / 400)
+function poids_club(i, type_poids)
+    if type_poids == "Elo"
+        return(classement.Elo[i] / 400)
+    elseif type_poids == "Coefficient_UEFA"
+        return(poids_clubs_coeff[i])
+    end
+    error("type_poids inconnu : $type_poids (\"Coefficient_UEFA\" ou \"Elo\")")
+end
+
+
+function equipes(type_poids = "Coefficient_UEFA")
     dic = Dict{String,Equipe}()
     for i in 1:36
         n = classement.Club[i]
-        dic[n] = Equipe(n, classement.Pays[i], 0, 0, 0, 0, 0, poids_clubs[i], 0, proba_tab(n))
+        dic[n] = Equipe(n, classement.Pays[i], 0, 0, 0, 0, 0, poids_club(i, type_poids), 0, proba_tab(n))
     end
     return(dic)
 end

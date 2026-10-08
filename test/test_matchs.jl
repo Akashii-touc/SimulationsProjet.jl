@@ -149,3 +149,13 @@ end
     end
     @test isapprox(victoires_A / n, 0.5, atol = 0.02)
 end
+
+
+@testset "equipes" begin
+    for type_poids in ["Coefficient_UEFA", "Elo"]
+        d = S.equipes(type_poids)
+        @test length(d) == 36
+    end
+    @test S.equipes("Elo")["Bayern"].poids == 2046 / 400
+    @test_throws ErrorException S.equipes("Autre")
+end
