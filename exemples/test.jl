@@ -1,31 +1,32 @@
 using SimulationsProjet
 
-
 println("================================================")
 println("Simulation pour avec une loi de Poisson")
 println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000,"Poisson"))
-println("")
-println("================================================")
+SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000,SimulationsProjet.ModelePoisson()))
+
+
 println("================================================")
 println("Simulation pour avec une loi de Poisson Bivariee")
 println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000,"PoissonBivariee"))
-println("")
-println("================================================")
+SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000,SimulationsProjet.ModelePoissonBivariee()))
+
+
 println("================================================")
 println("Simulation pour avec une loi Binomiale Negative")
 println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000,"BinomialeNegative"))
-print("")
-println("================================================")
-println("Simulation pour avec une loi de Poisson sans Elo")
-println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000,"Poisson"))
+SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000,SimulationsProjet.ModeleBinomialeNegative()))
+
+
 println("")
 println("================================================")
-println("Simulation pour avec une loi de Poisson avec Elo")
+println("Simulation avec le modèle de Dixon-Coles")
 println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000,"Poisson","Elo"))
+SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000, SimulationsProjet.ModeleDixonColes()))
+
+
 println("")
-println(SimulationsProjet.simul_reguliere("Poisson","Elo"))
+println("================================================")
+println("Simulation avec le modèle de Dixon-Coles avec Elo")
+println("================================================")
+SimulationsProjet.classement_stats(SimulationsProjet.simuler_n_fois(10000, SimulationsProjet.ModeleDixonColes(), "Elo"))

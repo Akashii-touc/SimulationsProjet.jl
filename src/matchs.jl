@@ -1,29 +1,22 @@
-function buts(equipe_A::Equipe, equipe_B::Equipe, modele::String; avantage_A = 1.0, avantage_B = 1.0, duree = 1.0)
+function buts(equipe_A::Equipe, equipe_B::Equipe, modele::Modele; avantage_A = 1.0, avantage_B = 1.0, duree = 1.0)
     ecart = equipe_A.poids - equipe_B.poids
     mu_A = avantage_A * exp(ecart) * duree
     mu_B = avantage_B * exp(-ecart) * duree
-    if modele == "Poisson"
-        return(rand(Poisson(mu_A)), rand(Poisson(mu_B)))
-    elseif modele == "PoissonBivariee"
-        X = rand(Poisson(0.4 * exp(-abs(ecart)) * duree))
-        return(rand(Poisson(mu_A)) + X, rand(Poisson(mu_B)) + X)
-    elseif modele == "BinomialeNegative"
-        return(rand(NegativeBinomial(4 * mu_A, 0.8)), rand(NegativeBinomial(4 * mu_B, 0.8)))
-    end
+    return(tirage(modele, mu_A, mu_B, ecart, duree))
 end
 
 
-function score_match(dom::Equipe, ext::Equipe, modele::String)
+function score_match(dom::Equipe, ext::Equipe, modele::Modele)
     return(buts(dom, ext, modele; avantage_A = 1.2))
 end
 
 
-function score_prolongation(equipe_A::Equipe, equipe_B::Equipe, modele::String)
+function score_prolongation(equipe_A::Equipe, equipe_B::Equipe, modele::Modele)
     return(buts(equipe_A, equipe_B, modele; avantage_B = 1.2, duree = 1/3))
 end
 
 
-function simul_aller_retour(equipes::Vector{Equipe}, modele::String)
+function simul_aller_retour(equipes::Vector{Equipe}, modele::Modele)
     resultat = Equipe[]
     for i in 1:(length(equipes) ÷ 2)
         equipe_A = equipes[i]
@@ -43,7 +36,7 @@ function simul_aller_retour(equipes::Vector{Equipe}, modele::String)
 end
 
 
-function simul_finale((equipe_A, equipe_B)::Vector{Equipe}, modele::String)
+function simul_finale((equipe_A, equipe_B)::Vector{Equipe}, modele::Modele)
     buts_A, buts_B = buts(equipe_A, equipe_B, modele)
     if buts_A == buts_B
         pro_A, pro_B = buts(equipe_A, equipe_B, modele; duree = 1/3)

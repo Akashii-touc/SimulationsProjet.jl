@@ -2,10 +2,10 @@ module SimulationsProjet
 
 using CSV, DataFrames, Statistics, Distributions, Random
 
-include("equipe.jl")
-include("simulation.jl")
-include("matchs.jl")
-include("statistiques.jl")
-
+    include("modeles.jl")
+    include("equipe.jl")
+    include("matchs.jl")
+    include("simulation.jl")
+    include("statistiques.jl")
 
 end
