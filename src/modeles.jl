@@ -1,5 +1,3 @@
-using Distributions, StatsBase #Ajout pour modèle Dixon-Coles
-
 #Un modèle décide comment on tire les buts des deux équipes à partir de leurs moyennes mu_A et mu_B
 abstract type Modele end
 
@@ -16,7 +14,6 @@ ModelePoissonBivariee() = ModelePoissonBivariee(0.4)
 struct ModeleBinomialeNegative <: Modele
     p::Float64
 end
-
 ModeleBinomialeNegative() = ModeleBinomialeNegative(0.8)
 
 
@@ -33,54 +30,4 @@ end
 function tirage(modele::ModeleBinomialeNegative, mu_A, mu_B, ecart, duree)
     p = modele.p
     return(rand(NegativeBinomial(mu_A * p / (1 - p), p)), rand(NegativeBinomial(mu_B * p / (1 - p), p)))
-end
-
-#Modèle Dixon-Coles
-#Étape 1: Définition du struct basé sur abstract type Modele
-struct ModeleDixonColes <: Modele
-    rho::Float64
-end
-
-ModeleDixonColes() = ModeleDixonColes(-0.15)
-
-#Étape 2: Fonction d'ajustement de Dixon-Coles
-function tau_dixon_coles(x::Int, y::Int, lambda::Float64, mu::Float64, rho::Float64 = -0.15)
-    if x == 0 && y == 0
-        return max(0.0, 1.0 - lambda * mu * rho)
-    elseif x == 0 && y == 1
-        return max(0.0, 1.0 + lambda * rho)
-    elseif x == 1 && y == 0
-        return max(0.0, 1.0 + mu * rho)
-    elseif x == 1 && y == 1
-        return max(0.0, 1.0 - rho)
-    else
-        return 1.0 # Les autres scores restent inchangés
-    end
-end
-
-# Étape 3 : Méthode 'tirage' spécifique pour ModeleDixonColes
-function tirage(modele::ModeleDixonColes, mu_A, mu_B, ecart, duree)
-    # Construction de la matrice de probabilités pour les scores de 0-0 à 10-10
-    max_buts = 10
-    proba_array = Float64[]
-    tissos = Tuple{Int, Int}[]
-
-    for x in 0:max_buts
-        for y in 0:max_buts
-            # Utilisation directe de mu_A et mu_B calculés en amont
-            proba_base = pdf(Poisson(mu_A), x) * pdf(Poisson(mu_B), y)
-            
-            # Utilisation de modele.rho pour l'ajustement
-            proba_final = proba_base * tau_dixon_coles(x, y, mu_A, mu_B, modele.rho)
-            
-            push!(proba_array, proba_final)
-            push!(tissos, (x, y))
-        end
-    end
-
-    # Tirage au sort du score 
-    idx_choisi = sample(1:length(tissos), Weights(proba_array))
-    
-    # Retourne un tuple pour correspondre aux autres modèles
-    return (tissos[idx_choisi][1], tissos[idx_choisi][2])
 end
