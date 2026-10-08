@@ -13,6 +13,7 @@ function simul_reguliere(modele::Modele)
     return(classement)
 end
 
+
 function simul_elimination_directe(equipes::Vector{Equipe}, modele::Modele)
     for e in equipes[1:8]
         e.parcours += 2
