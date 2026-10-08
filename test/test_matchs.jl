@@ -17,7 +17,7 @@ end
 @testset "buts" begin
     A = equipe("A", 0.0)
     B = equipe("B", 0.0)
-    for modele in [S.ModelePoisson(), S.ModelePoissonBivariee(), S.ModeleBinomialeNegative()]
+    for modele in [S.ModelePoisson(), S.ModelePoissonBivariee(), S.ModeleBinomialeNegative(), S.ModeleDixonColes()]
         a, b = S.buts(A, B, modele)
         @test a isa Integer && b isa Integer
         @test a >= 0 && b >= 0
@@ -35,6 +35,26 @@ end
     moy_A, moy_B = moyennes(() -> S.buts(fort, B, S.ModelePoisson()))
     @test isapprox(moy_A, exp(0.5), atol = 0.05)
     @test isapprox(moy_B, exp(-0.5), atol = 0.05)
+end
+
+@testset "dixon_coles" begin
+    A = equipe("A", 0.0)
+    B = equipe("B", 0.0)
+    n = 20000
+
+    #La correction ne change pas la moyenne de buts
+    moy_A, moy_B = moyennes(() -> S.buts(A, B, S.ModeleDixonColes()))
+    @test isapprox(moy_A, 1.0, atol = 0.05)
+    @test isapprox(moy_B, 1.0, atol = 0.05)
+
+    #Avec mu_A = mu_B = 1, P(0-0) = P(1-1) = exp(-2) * (1 - rho)
+    scores = [S.buts(A, B, S.ModeleDixonColes(-0.1)) for i in 1:n]
+    @test isapprox(count(==((0, 0)), scores) / n, exp(-2) * 1.1, atol = 0.01)
+    @test isapprox(count(==((1, 1)), scores) / n, exp(-2) * 1.1, atol = 0.01)
+
+    #rho = 0 redonne Poisson
+    scores = [S.buts(A, B, S.ModeleDixonColes(0.0)) for i in 1:n]
+    @test isapprox(count(==((0, 0)), scores) / n, exp(-2), atol = 0.01)
 end
 
 @testset "score_match" begin
