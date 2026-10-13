@@ -14,6 +14,8 @@ function simul_reguliere(modele::Modele, type_poids = "Coefficient_UEFA")
 end
 
 
+#Barrages : 9e-10e contre 23e-24e, ..., 15e-16e contre 17e-18e, puis huitième contre 1er-2e, ..., 7e-8e
+#Chaque paire de têtes de série est séparée dans les deux moitiés du tableau, le chemin est fixé jusqu'à la finale
 function simul_elimination_directe(equipes::Vector{Equipe}, modele::Modele)
     for e in equipes[1:8]
         e.parcours += 2
@@ -21,11 +23,31 @@ function simul_elimination_directe(equipes::Vector{Equipe}, modele::Modele)
     for e in equipes[9:24]
         e.parcours += 1
     end
-    huitieme = shuffle(simul_aller_retour([equipes[9:16]; shuffle(equipes[17:24])], modele))
-    quart = shuffle(simul_aller_retour([equipes[1:8]; huitieme], modele))
-    demie = shuffle(simul_aller_retour(quart, modele))
-    finaliste = shuffle(simul_aller_retour(demie, modele))
+    moities = [Equipe[], Equipe[]]
+    for j in [1, 4, 2, 3]
+        tetes = shuffle(equipes[2j-1:2j])
+        barragistes = shuffle(equipes[17-2j:18-2j])
+        adversaires = shuffle(equipes[15+2j:16+2j])
+        for m in 1:2
+            qualifie = simul_aller_retour([barragistes[m], adversaires[m]], modele)[1]
+            append!(moities[m], [tetes[m], qualifie])
+        end
+    end
+    quart = simul_tour([moities[1]; moities[2]], modele)
+    demie = simul_tour(quart, modele; tirage_ordre = true)
+    finaliste = simul_tour(demie, modele; tirage_ordre = true)
     return(simul_finale(finaliste, modele))
+end
+
+
+#Les équipes se rencontrent deux par deux dans l'ordre du tableau, la première reçoit au retour sauf si l'ordre est tiré
+function simul_tour(tableau::Vector{Equipe}, modele::Modele; tirage_ordre = false)
+    qualifiees = Equipe[]
+    for i in 1:2:length(tableau)
+        duel = tirage_ordre ? shuffle(tableau[i:i+1]) : tableau[i:i+1]
+        push!(qualifiees, simul_aller_retour(duel, modele)[1])
+    end
+    return(qualifiees)
 end
 
 
