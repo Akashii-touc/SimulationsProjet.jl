@@ -1,31 +1,12 @@
 using SimulationsProjet
 
 
-println("================================================")
-println("Simulation avec une loi de Poisson")
-println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.run_simulation(10000, SimulationsProjet.ModelePoisson()))
-println("")
-println("================================================")
-println("================================================")
-println("Simulation avec une loi de Poisson Bivariee")
-println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.run_simulation(10000, SimulationsProjet.ModelePoissonBivariee()))
-println("")
-println("================================================")
-println("================================================")
-println("Simulation avec une loi Binomiale Negative")
-println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.run_simulation(10000, SimulationsProjet.ModeleBinomialeNegative()))
-println("")
-println("================================================")
-println("================================================")
-println("Simulation avec le modele de Dixon-Coles")
-println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.run_simulation(10000, SimulationsProjet.ModeleDixonColes()))
-println("")
-println("================================================")
-println("================================================")
-println("Simulation avec le modele de Dixon-Coles et le poids Elo")
-println("================================================")
-SimulationsProjet.classement_stats(SimulationsProjet.run_simulation(10000, SimulationsProjet.ModeleDixonColes(), "Elo"))
+classement_stats(rand(10000, ModelePoisson()))
+
+classement_stats(rand(10000, ModelePoissonBivariee()))
+
+classement_stats(rand(10000, ModeleBinomialeNegative()))
+
+classement_stats(rand(10000, ModeleDixonColes()))
+
+classement_stats(rand(10000, ModeleDixonColes(), "Elo"))

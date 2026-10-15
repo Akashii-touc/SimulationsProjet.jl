@@ -27,7 +27,7 @@ function knockout_phase(equipes::Vector{Equipe}, modele::Modele)
 end
 
 
-function run_simulation(n::Int, modele::Modele, type_poids = "Coefficient_UEFA")
+function Base.rand(n::Int, modele::Modele, type_poids = "Coefficient_UEFA")
     dic = Dict{String, Tuple{Vector{Int}, Vector{Int}, Vector{Int}}}()
     for i in 1:n
         classement = league_phase(modele, type_poids)
