@@ -1,6 +1,5 @@
 using SimulationsProjet
 
-
 classement_stats(rand(10000, ModelePoisson()))
 
 classement_stats(rand(10000, ModelePoissonBivariee()))

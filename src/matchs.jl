@@ -9,15 +9,15 @@ end
 #A est l'équipe la mieux classée : aller chez B, retour puis prolongation éventuelle chez A
 function home_away_match(equipes::Vector{Equipe}, modele::Modele)
     resultat = Equipe[]
-    for i in 1:(length(equipes) ÷ 2)
+    for i in 1:2:length(equipes)
         equipe_A = equipes[i]
-        equipe_B = equipes[length(equipes) - i + 1]
-        buts_aller_B, buts_aller_A = buts(equipe_B, equipe_A, modele, avantage_A = 1.2)
-        buts_retour_A, buts_retour_B = buts(equipe_A, equipe_B, modele, avantage_A = 1.2)
+        equipe_B = equipes[i + 1]
+        buts_aller_B, buts_aller_A = buts(equipe_B, equipe_A, modele; avantage_A = 1.2)
+        buts_retour_A, buts_retour_B = buts(equipe_A, equipe_B, modele; avantage_A = 1.2)
         buts_A = buts_aller_A + buts_retour_A
         buts_B = buts_aller_B + buts_retour_B
         if buts_A == buts_B
-            buts_prolongation_A, buts_prolongation_B = buts(equipe_A, equipe_B, modele, avantage_A = 1.2, duree = 1/3)
+            buts_prolongation_A, buts_prolongation_B = buts(equipe_A, equipe_B, modele; avantage_A = 1.2, duree = 1/3)
             buts_A += buts_prolongation_A
             buts_B += buts_prolongation_B
         end

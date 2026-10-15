@@ -1,18 +1,15 @@
-mutable struct Equipe
+@kwdef mutable struct Equipe
     club::String #Nom du club
     pays::String #Pays du club
-    mj::Int64 #Nombre de matchs joués
-    points::Int64
-    buts_pour::Int64
-    buts_contre::Int64
-    db::Int64 #Différence de buts
-    poids::Float64 #Poids du club
-    parcours::Int64 #0=éliminer en phase de ligue, 1 = éliminer en barrage, ..., 6 = vainqueur
-    proba_tab::Float64 #Proba de marquer un tir au but
+    mj::Int64 = 0 #Nombre de matchs joués
+    points::Int64 = 0
+    buts_pour::Int64 = 0
+    buts_contre::Int64 = 0
+    db::Int64 = 0 #Différence de buts
+    poids::Float64 = 0.0 #Poids du club
+    parcours::Int64 = 0 #0=éliminer en phase de ligue, 1 = éliminer en barrage, ..., 6 = vainqueur
+    proba_tab::Float64 = 0.75 #Proba de marquer un tir au but
 end
-
-#Crée une équipe sans proba_tab donnée, elle vaut alors 0.75
-Equipe(club, pays, mj, points, buts_pour, buts_contre, db, poids, parcours) = Equipe(club, pays, mj, points, buts_pour, buts_contre, db, poids, parcours, 0.75)
 
 #Calcule la proba de marquer un tir au but d'un club depuis fichier/tirs_au_but.csv, ramenée vers 0.75 quand il y a peu de tirs (0.75 si le club est absent)
 function proba_tab(club::String)
@@ -41,7 +38,10 @@ function equipes(type_poids = "Coefficient_UEFA")
     dic = Dict{String,Equipe}()
     for i in 1:36
         nom = CLASSEMENT.Club[i]
-        dic[nom] = Equipe(nom, CLASSEMENT.Pays[i], 0, 0, 0, 0, 0, poids_club(i, type_poids), 0, proba_tab(nom))
+        equipe = Equipe(club = nom, pays = CLASSEMENT.Pays[i])
+        equipe.poids = poids_club(i, type_poids)
+        equipe.proba_tab = proba_tab(nom)
+        dic[nom] = equipe
     end
     return(dic)
 end

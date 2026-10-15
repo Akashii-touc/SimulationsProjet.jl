@@ -1,4 +1,4 @@
-equipe(nom, poids) = Equipe(nom, "FR", 0, 0, 0, 0, 0, poids, 0)
+equipe(nom, poids) = Equipe(nom, "FR", 0, 0, 0, 0, 0, poids, 0, 0.75)
 
 #Moyenne des buts de A et de B sur n tirages de f()
 function moyennes(f, n = 20000)
@@ -126,7 +126,7 @@ end
     @test length(qualifiees) == 4
     @test sum(e.parcours for e in equipes) == 4
     for i in 1:4
-        @test qualifiees[i] === equipes[i] || qualifiees[i] === equipes[9 - i]
+        @test qualifiees[i] === equipes[2 * i - 1] || qualifiees[i] === equipes[2 * i]
         @test qualifiees[i].parcours == 1
     end
 end
@@ -157,3 +157,4 @@ end
     @test equipes("Elo")["Bayern"].poids == 2046 / 400
     @test_throws ErrorException equipes("Autre")
 end
+

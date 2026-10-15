@@ -13,19 +13,61 @@ end
 
 
 function knockout_phase(equipes::Vector{Equipe}, modele::Modele)
-    for e in equipes[1:8]
-        e.parcours += 2
+    if length(equipes) == 36
+        for e in equipes[1:8]
+            e.parcours += 2
+        end
+        for e in equipes[9:24]
+            e.parcours += 1
+        end
+        (voie_argent, voie_bleue) = voie(equipes[1:24])
+        huitieme_argent = arbre(voie_argent[1:4], home_away_match(voie_argent[5:12], modele))
+        huitieme_bleue = arbre(voie_bleue[1:4], home_away_match(voie_bleue[5:12], modele))
+
+        quart_argent = home_away_match(huitieme_argent, modele)
+        quart_bleue = home_away_match(huitieme_bleue, modele)
+
+        demie_argent = home_away_match(quart_argent, modele)
+        demie_bleue = home_away_match(quart_bleue, modele)
+
+        finaliste_argent = home_away_match(demie_argent, modele)
+        finaliste_bleue = home_away_match(demie_bleue, modele)
+        
+        final([finaliste_argent; finaliste_bleue], modele)
+    else
+        error("Nombre d'équipes incorrect")
     end
-    for e in equipes[9:24]
-        e.parcours += 1
-    end
-    huitieme = shuffle(home_away_match([equipes[9:16]; shuffle(equipes[17:24])], modele))
-    quart = shuffle(home_away_match([equipes[1:8]; huitieme], modele))
-    demie = shuffle(home_away_match(quart, modele))
-    finaliste = shuffle(home_away_match(demie, modele))
-    final(finaliste, modele)
 end
 
+
+function voie(equipes::Vector{Equipe})
+    voie_argent = Equipe[]
+    voie_bleue = Equipe[]
+    if length(equipes) == 24
+        for i in [5, 3, 7, 1, 21, 11, 19, 13, 23, 9, 17, 15]
+            r = rand(0:1)
+            push!(voie_argent, equipes[i + r])
+            push!(voie_bleue, equipes[i + 1 - r])
+        end
+        return (voie_argent, voie_bleue)
+    else
+        error("Nombre d'équipes incorrect")
+    end
+end
+
+
+function arbre(tetes::Vector{Equipe}, barragistes::Vector{Equipe})
+    if (length(tetes) != 4) || (length(barragistes) != 4)
+        error("Nombre d'équipes incorrect")
+    else
+        resultat = Equipe[]
+        for i in 1:4
+            push!(resultat, barragistes[i])
+            push!(resultat, tetes[i])
+        end
+        return resultat
+    end
+end
 
 function Base.rand(n::Int, modele::Modele, type_poids = "Coefficient_UEFA")
     dic = Dict{String, Tuple{Vector{Int}, Vector{Int}, Vector{Int}}}()
