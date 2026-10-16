@@ -1,23 +1,23 @@
-function buts(equipe_A::Equipe, equipe_B::Equipe, modele::Modele; avantage_A = 1.0, avantage_B = 1.0, duree = 1.0)
+function buts(equipe_A::Equipe, equipe_B::Equipe, modele::Modele; avantage = 1.0, duree = 1.0)
     Δ = equipe_A.poids - equipe_B.poids
-    modele.λ_A = avantage_A * exp(Δ) * duree
-    modele.λ_B = avantage_B * exp(-Δ) * duree
+    modele.λ_A = avantage * exp(Δ) * duree
+    modele.λ_B = exp(-Δ) * duree
     return rand(modele, Δ, duree)
 end
 
 
-#A est l'équipe la mieux classée : aller chez B, retour puis prolongation éventuelle chez A
+#equipe_B est l'équipe la mieux classée. Match aller chez A, retour puis prolongation éventuelle chez B
 function home_away_match(equipes::Vector{Equipe}, modele::Modele)
     resultat = Equipe[]
     for i in 1:2:length(equipes)
         equipe_A = equipes[i]
         equipe_B = equipes[i + 1]
-        buts_aller_B, buts_aller_A = buts(equipe_B, equipe_A, modele; avantage_A = 1.2)
-        buts_retour_A, buts_retour_B = buts(equipe_A, equipe_B, modele; avantage_A = 1.2)
+        buts_aller_A, buts_aller_B = buts(equipe_A, equipe_B, modele; avantage = 1.2)
+        buts_retour_B, buts_retour_A = buts(equipe_B, equipe_A, modele; avantage = 1.2)
         buts_A = buts_aller_A + buts_retour_A
         buts_B = buts_aller_B + buts_retour_B
         if buts_A == buts_B
-            buts_prolongation_A, buts_prolongation_B = buts(equipe_A, equipe_B, modele; avantage_A = 1.2, duree = 1/3)
+            buts_prolongation_B, buts_prolongation_A = buts(equipe_B, equipe_A, modele; avantage = 1.2, duree = 1/3)
             buts_A += buts_prolongation_A
             buts_B += buts_prolongation_B
         end

@@ -3,7 +3,7 @@ function league_phase(modele::Modele, type_poids = "Coefficient_UEFA")
     for journee in eachcol(CALENDRIER)
         for match in journee
             dom, ext = String.(split(match, " - "))
-            buts_dom, buts_ext = buts(d[dom], d[ext], modele, avantage_A = 1.2)
+            buts_dom, buts_ext = buts(d[dom], d[ext], modele, avantage = 1.2)
             modif_equipe(d[dom], d[ext], buts_dom, buts_ext)
         end
     end
@@ -21,6 +21,7 @@ function knockout_phase(equipes::Vector{Equipe}, modele::Modele)
             e.parcours += 1
         end
         (voie_argent, voie_bleue) = voie(equipes[1:24])
+
         huitieme_argent = arbre(voie_argent[1:4], home_away_match(voie_argent[5:12], modele))
         huitieme_bleue = arbre(voie_bleue[1:4], home_away_match(voie_bleue[5:12], modele))
 

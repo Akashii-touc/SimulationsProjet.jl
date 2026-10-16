@@ -2,6 +2,9 @@ module SimulationsProjet
 
 using CSV, DataFrames, Statistics, Distributions, Random
 
+for fichier in ["classement_club.csv", "tirs_au_but.csv", "matchs.csv"]
+    include_dependency(joinpath(@__DIR__, "../fichier", fichier))
+end
 
 const CALENDRIER = CSV.read(joinpath(@__DIR__, "../fichier/matchs.csv"), DataFrame; types = String)
 const CLASSEMENT = CSV.read(joinpath(@__DIR__, "../fichier/classement_club.csv"), DataFrame; stringtype = String)
@@ -12,7 +15,7 @@ const POIDS_CLUBS_COEFF = round.((FORCE_BRUT .- mean(FORCE_BRUT)) ./ (maximum(FO
 
 export ModelePoisson, ModelePoissonBivariee, ModeleDixonColes, ModeleBinomialeNegative, τ
 export Equipe, equipes, proba_tab, poids_club, modif_equipe
-export rand, league_phase, knockout_phase, home_away_match, buts, final, equipe_qualifiee, shootout
+export rand, league_phase, knockout_phase, home_away_match, buts, final, equipe_qualifiee, shootout, voie, arbre
 export classement_stats, pourcentage
 
 export  CALENDRIER, CLASSEMENT, STATS_TAB, FORCE_BRUT, POIDS_CLUBS_COEFF

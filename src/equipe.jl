@@ -11,6 +11,7 @@
     proba_tab::Float64 = 0.75 #Proba de marquer un tir au but
 end
 
+
 #Calcule la proba de marquer un tir au but d'un club depuis fichier/tirs_au_but.csv, ramenée vers 0.75 quand il y a peu de tirs (0.75 si le club est absent)
 function proba_tab(club::String)
     ligne = findfirst(==(club), STATS_TAB.Club)
