@@ -1,51 +1,40 @@
-function buts(equipe_A::Equipe, equipe_B::Equipe, modele::Modele; avantage_A = 1.0, avantage_B = 1.0, duree = 1.0)
-    ecart = equipe_A.poids - equipe_B.poids
-    mu_A = avantage_A * exp(ecart) * duree
-    mu_B = avantage_B * exp(-ecart) * duree
-    return(tirage(modele, mu_A, mu_B, ecart, duree))
+function buts(equipe_A::Equipe, equipe_B::Equipe, modele::Modele; avantage = 1.0, duree = 1.0)
+    Δ = equipe_A.poids - equipe_B.poids
+    modele.λ_A = avantage * exp(Δ) * duree
+    modele.λ_B = exp(-Δ) * duree
+    return rand(modele, Δ, duree)
 end
 
 
-function score_match(dom::Equipe, ext::Equipe, modele::Modele)
-    return(buts(dom, ext, modele; avantage_A = 1.2))
-end
-
-
-#30 minutes de jeu chez dom, donc durée 1/3
-function score_prolongation(dom::Equipe, ext::Equipe, modele::Modele)
-    return(buts(dom, ext, modele; avantage_A = 1.2, duree = 1/3))
-end
-
-
-#A est l'équipe la mieux classée : aller chez B, retour puis prolongation éventuelle chez A
-function simul_aller_retour(equipes::Vector{Equipe}, modele::Modele)
+#equipe_B est l'équipe la mieux classée. Match aller chez A, retour puis prolongation éventuelle chez B
+function home_away_match(equipes::Vector{Equipe}, modele::Modele)
     resultat = Equipe[]
-    for i in 1:(length(equipes) ÷ 2)
+    for i in 1:2:length(equipes)
         equipe_A = equipes[i]
-        equipe_B = equipes[length(equipes) - i + 1]
-        aller_B, aller_A = score_match(equipe_B, equipe_A, modele)
-        retour_A, retour_B = score_match(equipe_A, equipe_B, modele)
-        buts_A = aller_A + retour_A
-        buts_B = aller_B + retour_B
+        equipe_B = equipes[i + 1]
+        buts_aller_A, buts_aller_B = buts(equipe_A, equipe_B, modele; avantage = 1.2)
+        buts_retour_B, buts_retour_A = buts(equipe_B, equipe_A, modele; avantage = 1.2)
+        buts_A = buts_aller_A + buts_retour_A
+        buts_B = buts_aller_B + buts_retour_B
         if buts_A == buts_B
-            pro_A, pro_B = score_prolongation(equipe_A, equipe_B, modele)
-            buts_A += pro_A
-            buts_B += pro_B
+            buts_prolongation_B, buts_prolongation_A = buts(equipe_B, equipe_A, modele; avantage = 1.2, duree = 1/3)
+            buts_A += buts_prolongation_A
+            buts_B += buts_prolongation_B
         end
         push!(resultat, equipe_qualifiee(equipe_A, equipe_B, buts_A, buts_B))
     end
-    return(resultat)
+    return resultat
 end
 
 
-function simul_finale((equipe_A, equipe_B)::Vector{Equipe}, modele::Modele)
+function final((equipe_A, equipe_B)::Vector{Equipe}, modele::Modele)
     buts_A, buts_B = buts(equipe_A, equipe_B, modele)
     if buts_A == buts_B
         pro_A, pro_B = buts(equipe_A, equipe_B, modele; duree = 1/3)
         buts_A += pro_A
         buts_B += pro_B
     end
-    return(equipe_qualifiee(equipe_A, equipe_B, buts_A, buts_B))
+    return equipe_qualifiee(equipe_A, equipe_B, buts_A, buts_B)
 end
 
 
@@ -54,35 +43,27 @@ function equipe_qualifiee(equipe_A::Equipe, equipe_B::Equipe, buts_A::Int64, but
         gagnante = equipe_A
     elseif buts_A < buts_B
         gagnante = equipe_B
-    elseif tirs_au_but(equipe_A, equipe_B)
+    elseif shootout(equipe_A, equipe_B)
         gagnante = equipe_A
     else
         gagnante = equipe_B
     end
     gagnante.parcours += 1
-    return(gagnante)
+    return gagnante
 end
 
 
 #5 tirs chacun puis mort subite, chaque équipe tire avec sa propre proba_tab (lue dans fichier/tirs_au_but.csv)
-function tirs_au_but(equipe_A::Equipe, equipe_B::Equipe)
+function shootout(equipe_A::Equipe, equipe_B::Equipe)
     tab_A = 0
     tab_B = 0
-    for i in 1:5
-        if rand() < equipe_A.proba_tab
-            tab_A += 1
-        end
-        if rand() < equipe_B.proba_tab
-            tab_B += 1
-        end
+    proba_tab_A = equipe_A.proba_tab
+    proba_tab_B = equipe_B.proba_tab
+    i = 1
+    while tab_A == tab_B || i <= 5
+        tab_A += rand(Bernoulli(proba_tab_A))
+        tab_B += rand(Bernoulli(proba_tab_B))
+        i += 1
     end
-    while tab_A == tab_B
-        if rand() < equipe_A.proba_tab
-            tab_A += 1
-        end
-        if rand() < equipe_B.proba_tab
-            tab_B += 1
-        end
-    end
-    return(tab_A > tab_B)
+    return tab_A > tab_B
 end

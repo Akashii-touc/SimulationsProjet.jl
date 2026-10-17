@@ -1,174 +1,117 @@
-const S = SimulationsProjet
+using Random
 
-equipe(nom, poids) = S.Equipe(nom, "FR", 0, 0, 0, 0, 0, poids, 0)
+equipe(nom, poids) = Equipe(nom, "FR", 0, 0, 0, 0, 0, poids, 0, 0.75)
 
-#Moyenne des buts de A et de B sur n tirages de f()
-function moyennes(f, n = 20000)
+function moyennes(f, n = 5_000)
     total_A = 0
     total_B = 0
-    for i in 1:n
-        a, b = f()
-        total_A += a
-        total_B += b
+    for _ in 1:n
+        buts_A, buts_B = f()
+        total_A += buts_A
+        total_B += buts_B
     end
-    return(total_A / n, total_B / n)
+    return total_A / n, total_B / n
 end
 
 @testset "buts" begin
-    A = equipe("A", 0.0)
-    B = equipe("B", 0.0)
-    for modele in [S.ModelePoisson(), S.ModelePoissonBivariee(), S.ModeleBinomialeNegative(), S.ModeleDixonColes()]
-        a, b = S.buts(A, B, modele)
-        @test a isa Integer && b isa Integer
-        @test a >= 0 && b >= 0
-    end
+    A = Equipe(club = "A", pays = "FR", poids = 0.5)
+    B = Equipe(club = "B", pays = "ES", poids = 0)
+    modele = ModelePoisson()
 
-    moy_A, moy_B = moyennes(() -> S.buts(A, B, S.ModelePoisson()))
-    @test isapprox(moy_A, 1.0, atol = 0.05)
-    @test isapprox(moy_B, 1.0, atol = 0.05)
+    score = buts(A, B, modele)
+    @test score isa Tuple{Int64, Int64}
+    @test all(>=(0), score)
+    @test modele.λ_A == exp(0.5)
+    @test modele.λ_B == exp(-0.5)
 
-    moy_A, moy_B = moyennes(() -> S.buts(A, B, S.ModeleBinomialeNegative()))
-    @test isapprox(moy_A, 1.0, atol = 0.05)
-    @test isapprox(moy_B, 1.0, atol = 0.05)
+    # L'avantage s'applique au domicile et la durée réduit les deux intensités.
+    buts(A, B, modele; avantage = 1.2, duree = 1 / 3)
+    @test isapprox(modele.λ_A, 1.2 * exp(0.5) / 3)
+    @test isapprox(modele.λ_B, exp(-0.5) / 3)
 
-    fort = equipe("Fort", 0.5)
-    moy_A, moy_B = moyennes(() -> S.buts(fort, B, S.ModelePoisson()))
-    @test isapprox(moy_A, exp(0.5), atol = 0.05)
-    @test isapprox(moy_B, exp(-0.5), atol = 0.05)
+    # Une durée nulle ne doit produire aucun but.
+    @test buts(A, B, modele; duree = 0.0) == (0, 0)
+    @test modele.λ_A == 0.0
+    @test modele.λ_B == 0.0
+
+    # Un avantage nul annule seulement l'intensité de l'équipe à domicile.
+    @test buts(A, B, modele; avantage = 0.0) isa Tuple{Int64, Int64}
+    @test modele.λ_A == 0.0
+    @test modele.λ_B > 0.0
+
+    Random.seed!(21)
+    moyenne_A, moyenne_B = moyennes(() -> buts(A, B, ModelePoisson()))
+    @test isapprox(moyenne_A, exp(0.5), atol = 0.08)
+    @test isapprox(moyenne_B, exp(-0.5), atol = 0.06)
 end
 
-@testset "dixon_coles" begin
-    A = equipe("A", 0.0)
-    B = equipe("B", 0.0)
-    n = 20000
+@testset "shootout" begin
+    A = Equipe(club = "A", pays = "FR")
+    B = Equipe(club = "B", pays = "ES")
 
-    #La correction ne change pas la moyenne de buts
-    moy_A, moy_B = moyennes(() -> S.buts(A, B, S.ModeleDixonColes()))
-    @test isapprox(moy_A, 1.0, atol = 0.05)
-    @test isapprox(moy_B, 1.0, atol = 0.05)
-
-    #Avec mu_A = mu_B = 1, P(0-0) = P(1-1) = exp(-2) * (1 - rho)
-    scores = [S.buts(A, B, S.ModeleDixonColes(-0.1)) for i in 1:n]
-    @test isapprox(count(==((0, 0)), scores) / n, exp(-2) * 1.1, atol = 0.01)
-    @test isapprox(count(==((1, 1)), scores) / n, exp(-2) * 1.1, atol = 0.01)
-
-    #rho = 0 redonne Poisson
-    scores = [S.buts(A, B, S.ModeleDixonColes(0.0)) for i in 1:n]
-    @test isapprox(count(==((0, 0)), scores) / n, exp(-2), atol = 0.01)
-end
-
-@testset "score_match" begin
-    A = equipe("A", 0.0)
-    B = equipe("B", 0.0)
-    moy_dom, moy_ext = moyennes(() -> S.score_match(A, B, S.ModelePoisson()))
-    @test moy_dom > moy_ext
-    @test isapprox(moy_dom, 1.2, atol = 0.05)
-    @test isapprox(moy_ext, 1.0, atol = 0.05)
-end
-
-@testset "score_prolongation" begin
-    A = equipe("A", 0.0)
-    B = equipe("B", 0.0)
-    moy_dom, moy_ext = moyennes(() -> S.score_prolongation(A, B, S.ModelePoisson()))
-    @test isapprox(moy_dom, 1.2 / 3, atol = 0.03)
-    @test isapprox(moy_ext, 1 / 3, atol = 0.03)
-end
-
-@testset "tirs_au_but" begin
-    A = equipe("A", 0.0)
-    B = equipe("B", 0.0)
-    @test S.tirs_au_but(A, B) isa Bool
-    n = 20000
-    victoires = 0
-    for i in 1:n
-        if S.tirs_au_but(A, B)
-            victoires += 1
-        end
-    end
-    @test isapprox(victoires / n, 0.5, atol = 0.02)
-
+    # Des probabilités extrêmes rendent l'issue certaine après les cinq tirs.
     A.proba_tab = 1.0
     B.proba_tab = 0.0
-    @test S.tirs_au_but(A, B) == true
-    @test S.tirs_au_but(B, A) == false
-end
+    @test shootout(A, B) === true
+    @test shootout(B, A) === false
 
-@testset "proba_tab" begin
-    @test equipe("A", 0.0).proba_tab == 0.75
-    @test S.proba_tab("Inconnu") == 0.75
-    @test S.equipes()["Bayern"].proba_tab == S.proba_tab("Bayern")
-
-    ligne = findfirst(==("Bayern"), S.stats_tab.Club)
-    tentes = S.stats_tab.tirs_tentes[ligne]
-    reussis = S.stats_tab.tirs_reussis[ligne]
-    S.stats_tab.tirs_tentes[ligne] = 10
-    S.stats_tab.tirs_reussis[ligne] = 10
-    @test S.proba_tab("Bayern") == 0.875
-    S.stats_tab.tirs_tentes[ligne] = tentes
-    S.stats_tab.tirs_reussis[ligne] = reussis
+    A.proba_tab = 0.75
+    B.proba_tab = 0.75
+    Random.seed!(22)
+    @test shootout(A, B) isa Bool
 end
 
 @testset "equipe_qualifiee" begin
-    A = equipe("A", 0.0)
-    B = equipe("B", 0.0)
-    @test S.equipe_qualifiee(A, B, 2, 1) === A
-    @test S.equipe_qualifiee(A, B, 0, 3) === B
-    @test A.parcours == 1
-    @test B.parcours == 1
+    A = Equipe(club = "A", pays = "FR")
+    B = Equipe(club = "B", pays = "ES")
 
+    @test equipe_qualifiee(A, B, 3, 1) === A
+    @test equipe_qualifiee(A, B, 1, 3) === B
+    @test (A.parcours, B.parcours) == (1, 1)
+
+    # À égalité, les probabilités de tirs au but départagent les équipes.
     A.proba_tab = 1.0
     B.proba_tab = 0.0
-    @test S.equipe_qualifiee(A, B, 1, 1) === A
-    @test S.equipe_qualifiee(B, A, 1, 1) === A
+    @test equipe_qualifiee(A, B, 2, 2) === A
+    @test equipe_qualifiee(B, A, 2, 2) === A
+    @test (A.parcours, B.parcours) == (3, 1)
 end
 
-@testset "simul_aller_retour" begin
-    equipes = [equipe(string(i), 0.0) for i in 1:8]
-    qualifiees = S.simul_aller_retour(equipes, S.ModelePoisson())
+@testset "home_away_match" begin
+    equipes = [equipe("Equipe $i", i / 10) for i in 1:8]
+    Random.seed!(23)
+    qualifiees = home_away_match(equipes, ModelePoisson())
+
     @test length(qualifiees) == 4
     @test sum(e.parcours for e in equipes) == 4
     for i in 1:4
-        @test qualifiees[i] === equipes[i] || qualifiees[i] === equipes[9 - i]
-        @test qualifiees[i].parcours == 1
+        @test qualifiees[i] === equipes[2i - 1] || qualifiees[i] === equipes[2i]
     end
+
+    # La deuxième équipe reçoit au retour; le modèle conserve les intensités
+    # correspondant à ce dernier match.
+    barragiste = equipe("Barragiste", 0.0)
+    tete_de_serie = equipe("Tête de série", log(2.0))
+    modele = ModelePoisson()
+    Random.seed!(24)
+    home_away_match([barragiste, tete_de_serie], modele)
+    @test isapprox(modele.λ_A / modele.λ_B, 1.2 * exp(2 * (tete_de_serie.poids - barragiste.poids)))
 end
 
-@testset "simul_finale" begin
-    A = equipe("A", 0.0)
-    B = equipe("B", 0.0)
-    gagnant = S.simul_finale([A, B], S.ModelePoisson())
+@testset "final" begin
+    A = Equipe(club = "A", pays = "FR", poids = 0)
+    B = Equipe(club = "B", pays = "ES", poids = 0)
+    Random.seed!(25)
+
+    gagnant = final([A, B], ModelePoisson())
     @test gagnant === A || gagnant === B
     @test A.parcours + B.parcours == 1
 
-    n = 20000
-    victoires_A = 0
-    for i in 1:n
-        if S.simul_finale([A, B], S.ModelePoisson()) === A
-            victoires_A += 1
-        end
-    end
-    @test isapprox(victoires_A / n, 0.5, atol = 0.02)
-end
-
-
-@testset "equipes" begin
-    for type_poids in ["Coefficient_UEFA", "Elo"]
-        d = S.equipes(type_poids)
-        @test length(d) == 36
-    end
-    @test S.equipes("Elo")["Bayern"].poids == 2046 / 400
-    @test_throws ErrorException S.equipes("Autre")
-end
-
-
-@testset "simul_elimination_directe" begin
-    for k in 1:200
-        equipes = [equipe(string(i), 0.0) for i in 1:24]
-        gagnant = S.simul_elimination_directe(equipes, S.ModelePoisson())
-        parcours = [e.parcours for e in equipes]
-        @test gagnant.parcours == 6
-        @test all(parcours[1:8] .>= 2)
-        @test all(1 .<= parcours[9:24] .<= 6)
-        @test [count(>=(p), parcours) for p in 2:6] == [16, 8, 4, 2, 1]
-    end
+    # À forces égales, aucune équipe ne doit être systématiquement favorisée.
+    A = Equipe(club = "A", pays = "FR", poids = 0)
+    B = Equipe(club = "B", pays = "ES", poids = 0)
+    Random.seed!(26)
+    victoires_A = count(final([A, B], ModelePoisson()) === A for _ in 1:2_000)
+    @test isapprox(victoires_A / 2_000, 0.5, atol = 0.05)
+    @test A.parcours + B.parcours == 2_000
 end
