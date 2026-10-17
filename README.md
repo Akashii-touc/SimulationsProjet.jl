@@ -2,15 +2,14 @@
 
 ## Ajouts possibles
 
-1. **Tableau final fidèle au vrai** : les affiches dépendent du classement (9e-10e contre 23e-24e en barrages, chemin fixé jusqu'à la finale) au lieu d'un tirage au hasard à chaque tour.
-2. **Nombre de buts réaliste** : un paramètre pour régler la moyenne de buts par match (environ 3 en Ligue des champions, environ 2,2 dans la simulation actuelle).
-3. **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
-4. **Résultats reproductibles** : fixer le hasard pour retrouver exactement les mêmes chiffres.
-5. **Simulations plus rapides** : répartir les simulations sur plusieurs cœurs.
-6. **Départage officiel** : appliquer les critères UEFA en cas d'égalité au classement (après les points, la différence de buts et les buts marqués).
-7. **Comparaison avec la réalité** : comparer les probabilités obtenues aux vrais résultats ou aux cotes des bookmakers pour savoir quel modèle est le meilleur.
-8. **Graphiques** : probabilités de victoire par club, comparaison des modèles.
-9. **Interface graphique**
+1. **Nombre de buts réaliste** : un paramètre pour régler la moyenne de buts par match (environ 3 en Ligue des champions, environ 2,2 dans la simulation actuelle).
+2. **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
+3. **Résultats reproductibles** : fixer le hasard pour retrouver exactement les mêmes chiffres.
+4. **Simulations plus rapides** : répartir les simulations sur plusieurs cœurs.
+5. **Départage officiel** : appliquer les critères UEFA en cas d'égalité au classement (après les points, la différence de buts et les buts marqués).
+6. **Comparaison avec la réalité** : comparer les probabilités obtenues aux vrais résultats ou aux cotes des bookmakers pour savoir quel modèle est le meilleur.
+7. **Graphiques** : probabilités de victoire par club, comparaison des modèles.
+8. **Interface graphique**
 
 ## Tests automatiques
 

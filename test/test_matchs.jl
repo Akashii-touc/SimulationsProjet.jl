@@ -115,3 +115,16 @@ end
     @test isapprox(victoires_A / 2_000, 0.5, atol = 0.05)
     @test A.parcours + B.parcours == 2_000
 end
+
+
+@testset "simul_elimination_directe" begin
+    for k in 1:200
+        equipes = [equipe(string(i), 0.0) for i in 1:24]
+        gagnant = S.simul_elimination_directe(equipes, S.ModelePoisson())
+        parcours = [e.parcours for e in equipes]
+        @test gagnant.parcours == 6
+        @test all(parcours[1:8] .>= 2)
+        @test all(1 .<= parcours[9:24] .<= 6)
+        @test [count(>=(p), parcours) for p in 2:6] == [16, 8, 4, 2, 1]
+    end
+end
