@@ -9,3 +9,5 @@ using Test
     include("test_simulation.jl")
     include("test_statistiques.jl")
 end
+
+nothing
