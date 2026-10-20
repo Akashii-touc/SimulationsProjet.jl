@@ -51,3 +51,8 @@ end
     @test count(==(6), parcours) == 1
     @test_throws ErrorException knockout_phase(classement[1:35], ModelePoisson())
 end
+
+@testset "seed" begin
+    @test rand(3, ModelePoisson(); seed = 1) == rand(3, ModelePoisson(); seed = 1)
+    @test rand(3, ModelePoisson(); seed = 1) != rand(3, ModelePoisson(); seed = 2)
+end
