@@ -1,33 +1,25 @@
-classement = CSV.read(joinpath(@__DIR__, "../fichier/classement_club.csv"), DataFrame; stringtype = String)
-stats_tab = CSV.read(joinpath(@__DIR__, "../fichier/tirs_au_but.csv"), DataFrame; stringtype = String)
-
-force_brut = 0.8 * classement.Coeff_club + 0.2 * classement.Coeff_pays
-poids_clubs_coeff = round.((force_brut .- mean(force_brut)) ./ (maximum(force_brut) - minimum(force_brut)), digits = 5)
-
-mutable struct Equipe
+@kwdef mutable struct Equipe
     club::String #Nom du club
     pays::String #Pays du club
-    mj::Int64 #Nombre de matchs joués
-    points::Int64
-    buts_pour::Int64
-    buts_contre::Int64
-    db::Int64 #Différence de buts
-    poids::Float64 #Poids du club
-    parcours::Int64 #0=éliminer en phase de ligue, 1 = éliminer en barrage, ..., 6 = vainqueur
-    proba_tab::Float64 #Proba de marquer un tir au but
+    mj::Int64 = 0 #Nombre de matchs joués
+    points::Int64 = 0
+    buts_pour::Int64 = 0
+    buts_contre::Int64 = 0
+    db::Int64 = 0 #Différence de buts
+    poids::Float64 = 0.0 #Poids du club
+    parcours::Int64 = 0 #0=éliminer en phase de ligue, 1 = éliminer en barrage, ..., 6 = vainqueur
+    proba_tab::Float64 = 0.75 #Proba de marquer un tir au but
 end
 
-#Crée une équipe sans proba_tab donnée, elle vaut alors 0.75
-Equipe(club, pays, mj, points, buts_pour, buts_contre, db, poids, parcours) = Equipe(club, pays, mj, points, buts_pour, buts_contre, db, poids, parcours, 0.75)
 
 #Calcule la proba de marquer un tir au but d'un club depuis fichier/tirs_au_but.csv, ramenée vers 0.75 quand il y a peu de tirs (0.75 si le club est absent)
 function proba_tab(club::String)
-    ligne = findfirst(==(club), stats_tab.Club)
+    ligne = findfirst(==(club), STATS_TAB.Club)
     if ligne === nothing
         return(0.75)
     end
-    tentes = stats_tab.tirs_tentes[ligne]
-    reussis = stats_tab.tirs_reussis[ligne]
+    tentes = STATS_TAB.tirs_tentes[ligne]
+    reussis = STATS_TAB.tirs_reussis[ligne]
     return((reussis + 0.75 * 10) / (tentes + 10))
 end
 
@@ -35,9 +27,9 @@ end
 #Poids d'un club selon type_poids : "Coefficient_UEFA" (coefficients club et pays) ou "Elo" (Elo / 400)
 function poids_club(i, type_poids)
     if type_poids == "Elo"
-        return(classement.Elo[i] / 400)
+        return CLASSEMENT.Elo[i] / 400
     elseif type_poids == "Coefficient_UEFA"
-        return(poids_clubs_coeff[i])
+        return POIDS_CLUBS_COEFF[i]
     end
     error("type_poids inconnu : $type_poids (\"Coefficient_UEFA\" ou \"Elo\")")
 end
@@ -46,8 +38,11 @@ end
 function equipes(type_poids = "Coefficient_UEFA")
     dic = Dict{String,Equipe}()
     for i in 1:36
-        n = classement.Club[i]
-        dic[n] = Equipe(n, classement.Pays[i], 0, 0, 0, 0, 0, poids_club(i, type_poids), 0, proba_tab(n))
+        nom = CLASSEMENT.Club[i]
+        equipe = Equipe(club = nom, pays = CLASSEMENT.Pays[i])
+        equipe.poids = poids_club(i, type_poids)
+        equipe.proba_tab = proba_tab(nom)
+        dic[nom] = equipe
     end
     return(dic)
 end

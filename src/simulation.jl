@@ -1,11 +1,9 @@
-calendrier = CSV.read(joinpath(@__DIR__, "../fichier/matchs.csv"), DataFrame; types = String)
-
-function simul_reguliere(modele::Modele, type_poids = "Coefficient_UEFA")
+function league_phase(modele::Modele, type_poids = "Coefficient_UEFA")
     d = equipes(type_poids)
-    for journee in eachcol(calendrier)
+    for journee in eachcol(CALENDRIER)
         for match in journee
             dom, ext = String.(split(match, " - "))
-            buts_dom, buts_ext = score_match(d[dom], d[ext], modele)
+            buts_dom, buts_ext = buts(d[dom], d[ext], modele, avantage = 1.2)
             modif_equipe(d[dom], d[ext], buts_dom, buts_ext)
         end
     end
@@ -14,48 +12,69 @@ function simul_reguliere(modele::Modele, type_poids = "Coefficient_UEFA")
 end
 
 
-#Barrages : 9e-10e contre 23e-24e, ..., 15e-16e contre 17e-18e, puis huitième contre 1er-2e, ..., 7e-8e
-#Chaque paire de têtes de série est séparée dans les deux moitiés du tableau, le chemin est fixé jusqu'à la finale
-function simul_elimination_directe(equipes::Vector{Equipe}, modele::Modele)
-    for e in equipes[1:8]
-        e.parcours += 2
-    end
-    for e in equipes[9:24]
-        e.parcours += 1
-    end
-    moities = [Equipe[], Equipe[]]
-    for j in [1, 4, 2, 3]
-        tetes = shuffle(equipes[2j-1:2j])
-        barragistes = shuffle(equipes[17-2j:18-2j])
-        adversaires = shuffle(equipes[15+2j:16+2j])
-        for m in 1:2
-            qualifie = simul_aller_retour([barragistes[m], adversaires[m]], modele)[1]
-            append!(moities[m], [tetes[m], qualifie])
+function knockout_phase(equipes::Vector{Equipe}, modele::Modele)
+    if length(equipes) == 36
+        for e in equipes[1:8]
+            e.parcours += 2
         end
+        for e in equipes[9:24]
+            e.parcours += 1
+        end
+        (voie_argent, voie_bleue) = voie(equipes[1:24])
+
+        huitieme_argent = arbre(voie_argent[1:4], home_away_match(voie_argent[5:12], modele))
+        huitieme_bleue = arbre(voie_bleue[1:4], home_away_match(voie_bleue[5:12], modele))
+
+        quart_argent = home_away_match(huitieme_argent, modele)
+        quart_bleue = home_away_match(huitieme_bleue, modele)
+
+        demie_argent = home_away_match(quart_argent, modele)
+        demie_bleue = home_away_match(quart_bleue, modele)
+
+        finaliste_argent = home_away_match(demie_argent, modele)
+        finaliste_bleue = home_away_match(demie_bleue, modele)
+        
+        final([finaliste_argent; finaliste_bleue], modele)
+    else
+        error("Nombre d'équipes incorrect")
     end
-    quart = simul_tour([moities[1]; moities[2]], modele)
-    demie = simul_tour(quart, modele; tirage_ordre = true)
-    finaliste = simul_tour(demie, modele; tirage_ordre = true)
-    return(simul_finale(finaliste, modele))
 end
 
 
-#Les équipes se rencontrent deux par deux dans l'ordre du tableau, la première reçoit au retour sauf si l'ordre est tiré
-function simul_tour(tableau::Vector{Equipe}, modele::Modele; tirage_ordre = false)
-    qualifiees = Equipe[]
-    for i in 1:2:length(tableau)
-        duel = tirage_ordre ? shuffle(tableau[i:i+1]) : tableau[i:i+1]
-        push!(qualifiees, simul_aller_retour(duel, modele)[1])
+function voie(equipes::Vector{Equipe})
+    voie_argent = Equipe[]
+    voie_bleue = Equipe[]
+    if length(equipes) == 24
+        for i in [5, 3, 7, 1, 21, 11, 19, 13, 23, 9, 17, 15]
+            r = rand(0:1)
+            push!(voie_argent, equipes[i + r])
+            push!(voie_bleue, equipes[i + 1 - r])
+        end
+        return (voie_argent, voie_bleue)
+    else
+        error("Nombre d'équipes incorrect")
     end
-    return(qualifiees)
 end
 
 
-function simuler_n_fois(n::Int, modele::Modele, type_poids = "Coefficient_UEFA")
+function arbre(tetes::Vector{Equipe}, barragistes::Vector{Equipe})
+    if (length(tetes) != 4) || (length(barragistes) != 4)
+        error("Nombre d'équipes incorrect")
+    else
+        resultat = Equipe[]
+        for i in 1:4
+            push!(resultat, barragistes[i])
+            push!(resultat, tetes[i])
+        end
+        return resultat
+    end
+end
+
+function Base.rand(n::Int, modele::Modele, type_poids = "Coefficient_UEFA")
     dic = Dict{String, Tuple{Vector{Int}, Vector{Int}, Vector{Int}}}()
     for i in 1:n
-        classement = simul_reguliere(modele, type_poids)
-        simul_elimination_directe(classement, modele)
+        classement = league_phase(modele, type_poids)
+        knockout_phase(classement, modele)
         for (rang, equipe) in enumerate(classement)
             if i == 1
                 dic[equipe.club] = (Int[], Int[], Int[])
