@@ -2,13 +2,12 @@
 
 ## Ajouts possibles
 
-1. **Nombre de buts réaliste** : un paramètre pour régler la moyenne de buts par match (environ 3 en Ligue des champions, environ 2,2 dans la simulation actuelle).
-2. **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
-3. **Simulations plus rapides** : répartir les simulations sur plusieurs cœurs.
-4. **Départage officiel** : appliquer les critères UEFA en cas d'égalité au classement (après les points, la différence de buts et les buts marqués).
-5. **Comparaison avec la réalité** : comparer les probabilités obtenues aux vrais résultats ou aux cotes des bookmakers pour savoir quel modèle est le meilleur.
-6. **Graphiques** : probabilités de victoire par club, comparaison des modèles.
-7. **Interface graphique**
+1. **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
+2. **Simulations plus rapides** : répartir les simulations sur plusieurs cœurs.
+3. **Départage officiel** : appliquer les critères UEFA en cas d'égalité au classement (après les points, la différence de buts et les buts marqués).
+4. **Comparaison avec la réalité** : comparer les probabilités obtenues aux vrais résultats ou aux cotes des bookmakers pour savoir quel modèle est le meilleur.
+5. **Graphiques** : probabilités de victoire par club, comparaison des modèles.
+6. **Interface graphique**
 
 ## Tests automatiques
 

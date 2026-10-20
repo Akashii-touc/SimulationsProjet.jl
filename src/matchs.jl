@@ -1,7 +1,7 @@
 function buts(equipe_A::Equipe, equipe_B::Equipe, modele::Modele; avantage = 1.0, duree = 1.0)
     Δ = equipe_A.poids - equipe_B.poids
-    modele.λ_A = avantage * exp(Δ) * duree
-    modele.λ_B = exp(-Δ) * duree
+    modele.λ_A = modele.μ * avantage * exp(Δ) * duree
+    modele.λ_B = modele.μ * exp(-Δ) * duree
     return rand(modele, Δ, duree)
 end
 
