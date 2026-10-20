@@ -1,4 +1,5 @@
 #Un modèle décide comment on tire les buts des deux équipes à partir de leurs moyennes λ_A et λ_B
+#μ multiplie les moyennes de buts, réglé pour avoir environ 3 buts par match comme en Ligue des champions
 abstract type Modele end
 
 
@@ -6,6 +7,7 @@ abstract type Modele end
 @kwdef mutable struct ModelePoisson <: Modele
     λ_A::Float64 = 1.0
     λ_B::Float64 = 1.0
+    μ::Float64 = 1.25
 end
 
 
@@ -13,6 +15,7 @@ end
 @kwdef mutable struct ModelePoissonBivariee <: Modele
     λ_A::Float64 = 1.0
     λ_B::Float64 = 1.0
+    μ::Float64 = 1.0 #X ajoute déjà des buts
     λ_commun::Float64 = 0.4
 end
 
@@ -21,6 +24,7 @@ end
 @kwdef mutable struct ModeleBinomialeNegative <: Modele
     λ_A::Float64 = 1.0
     λ_B::Float64 = 1.0
+    μ::Float64 = 1.25
     p::Float64 = 0.8
 end
 
@@ -29,6 +33,7 @@ end
 @kwdef mutable struct ModeleDixonColes <: Modele
     λ_A::Float64 = 1.0
     λ_B::Float64 = 1.0
+    μ::Float64 = 1.25
     ρ::Float64 = -0.1
 end
 

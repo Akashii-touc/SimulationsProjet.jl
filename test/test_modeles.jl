@@ -4,7 +4,7 @@ using Statistics
 @testset "paramètres du modèle de Poisson" begin
     A = Equipe("A", "FR", 0, 0, 0, 0, 0, 0.5, 0, 0.75)
     B = Equipe("B", "ES", 0, 0, 0, 0, 0, 0.0, 0, 0.75)
-    modele = ModelePoisson()
+    modele = ModelePoisson(μ = 1.0)
     buts(A, B, modele; avantage = 1.2, duree = 1 / 3)
     @test isapprox(modele.λ_A, 1.2 * exp(0.5) / 3)
     @test isapprox(modele.λ_B, exp(-0.5) / 3)
@@ -37,4 +37,13 @@ end
     @test τ(1, 1, 1.0, 1.0, -0.1) ≈ 1.1
     @test τ(2, 0, 1.0, 1.0, -0.1) == 1.0
     @test τ(0, 0, 1.0, 1.0, 0.0) == 1.0
+end
+
+@testset "μ multiplie les moyennes" begin
+    A = Equipe(club = "A", pays = "FR")
+    B = Equipe(club = "B", pays = "ES")
+    modele = ModelePoisson(μ = 1.5)
+    buts(A, B, modele)
+    @test modele.λ_A == 1.5
+    @test modele.λ_B == 1.5
 end
