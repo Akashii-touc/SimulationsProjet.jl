@@ -71,15 +71,21 @@ function arbre(tetes::Vector{Equipe}, barragistes::Vector{Equipe})
 end
 
 #seed fixe le hasard pour retrouver les mêmes résultats
+#Les simulations sont réparties sur les threads (lancer julia avec -t auto)
 function Base.rand(n::Int, modele::Modele, type_poids = "Coefficient_UEFA"; seed = nothing)
     if seed !== nothing
         Random.seed!(seed)
     end
+    classements = Vector{Vector{Equipe}}(undef, n)
+    Threads.@threads for i in 1:n
+        copie = deepcopy(modele) #buts modifie le modèle, donc une copie par simulation
+        classement = league_phase(copie, type_poids)
+        knockout_phase(classement, copie)
+        classements[i] = classement
+    end
     dic = Dict{String, Tuple{Vector{Int}, Vector{Int}, Vector{Int}}}()
     for i in 1:n
-        classement = league_phase(modele, type_poids)
-        knockout_phase(classement, modele)
-        for (rang, equipe) in enumerate(classement)
+        for (rang, equipe) in enumerate(classements[i])
             if i == 1
                 dic[equipe.club] = (Int[], Int[], Int[])
             end
