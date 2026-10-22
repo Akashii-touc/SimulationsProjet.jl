@@ -37,10 +37,8 @@ Les simulations sont réparties sur plusieurs cœurs si Julia est lancé avec pl
 ## Ajouts possibles
 
 1. **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
-2. **Départage officiel** : appliquer les critères UEFA en cas d'égalité au classement (après les points, la différence de buts et les buts marqués).
-3. **Comparaison avec la réalité** : comparer les probabilités obtenues aux vrais résultats ou aux cotes des bookmakers pour savoir quel modèle est le meilleur.
-4. **Graphiques** : probabilités de victoire par club, comparaison des modèles.
-5. **Interface graphique**
+2. **Graphiques** : probabilités de victoire par club, comparaison des modèles.
+3. **Interface graphique**
 
 ## Tests automatiques
 
