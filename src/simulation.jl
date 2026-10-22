@@ -73,6 +73,7 @@ end
 function Base.rand(n::Int, modele::Modele, type_poids = "Coefficient_UEFA")
     dic = Dict{String, Tuple{Vector{Int}, Vector{Int}, Vector{Int}}}()
     for i in 1:n
+        println(i)
         classement = league_phase(modele, type_poids)
         knockout_phase(classement, modele)
         for (rang, equipe) in enumerate(classement)

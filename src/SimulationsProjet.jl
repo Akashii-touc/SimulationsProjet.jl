@@ -17,9 +17,9 @@ export ModelePoisson, ModelePoissonBivariee, ModeleDixonColes, ModeleBinomialeNe
 export Equipe, equipes, proba_tab, poids_club, modif_equipe
 export rand, league_phase, knockout_phase, home_away_match, buts, final, equipe_qualifiee, shootout, voie, arbre
 export classement_stats, pourcentage
+export launch
 
 export  CALENDRIER, CLASSEMENT, STATS_TAB, FORCE_BRUT, POIDS_CLUBS_COEFF
-
 
 
 
@@ -28,6 +28,7 @@ include("modeles.jl")
 include("simulation.jl")
 include("matchs.jl")
 include("statistiques.jl")
+include("interface.jl")
 
 
 end

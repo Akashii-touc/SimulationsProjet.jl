@@ -9,5 +9,7 @@ end
     resultat = redirect_stdout(devnull) do
         classement_stats(donnees)
     end
-    @test isnothing(resultat)
+    @test resultat.Club == ["A"]
+    @test resultat.xPoints == [4.5]
+    @test resultat.Top8 == [50.0]
 end

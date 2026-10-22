@@ -1,7 +1,6 @@
 #Un modèle décide comment on tire les buts des deux équipes à partir de leurs moyennes λ_A et λ_B
 abstract type Modele end
 
-
 #Buts indépendants qui suivent chacun une loi de Poisson
 @kwdef mutable struct ModelePoisson <: Modele
     λ_A::Float64 = 1.0
