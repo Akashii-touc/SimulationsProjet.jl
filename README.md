@@ -1,15 +1,44 @@
 # SimulationsProjet
 
+Simule la Ligue des champions (phase de ligue puis phase finale) des milliers de fois pour estimer les chances de chaque club.
+
+## Utilisation
+
+```julia
+using SimulationsProjet
+
+classement_stats(rand(10000, ModeleDixonColes()))                  # poids UEFA
+classement_stats(rand(10000, ModeleDixonColes(), "Elo"))           # poids Elo
+classement_stats(rand(10000, ModeleDixonColes(); seed = 1))        # mêmes résultats à chaque fois
+classement_stats(rand(10000, ModeleDixonColes(μ = 1.1)))           # moins de buts par match
+```
+
+Exemples complets dans `exemples/test.jl`.
+
+Les simulations sont réparties sur plusieurs cœurs si Julia est lancé avec plusieurs threads : `julia -t auto` (ou réglage « Julia: Num Threads » à `auto` dans VS Code). Avec une `seed`, les résultats sont les mêmes tant que le nombre de threads ne change pas.
+
+## Modèles
+
+| Modèle | Idée | Paramètres par défaut |
+|---|---|---|
+| `ModelePoisson` | buts indépendants, loi de Poisson | `μ = 1.25` |
+| `ModelePoissonBivariee` | Poisson + une partie commune aux deux équipes | `μ = 1.0`, `λ_commun = 0.4` |
+| `ModeleBinomialeNegative` | plus dispersé que Poisson | `μ = 1.25`, `p = 0.8` |
+| `ModeleDixonColes` | Poisson corrigé sur les petits scores | `μ = 1.25`, `ρ = -0.1` |
+
+`μ` multiplie les moyennes de buts : avec les valeurs par défaut on a environ 3 buts par match, comme en Ligue des champions.
+
+## Données (`fichier/`)
+
+- `matchs.csv` : calendrier des 8 journées de la phase de ligue.
+- `classement_club.csv` : coefficients UEFA (club et pays) et Elo des 36 clubs.
+- `tirs_au_but.csv` : tirs au but tentés et réussis par club.
+
 ## Ajouts possibles
 
-1. **Nombre de buts réaliste** : un paramètre pour régler la moyenne de buts par match (environ 3 en Ligue des champions, environ 2,2 dans la simulation actuelle).
-2. **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
-3. **Résultats reproductibles** : fixer le hasard pour retrouver exactement les mêmes chiffres.
-4. **Simulations plus rapides** : répartir les simulations sur plusieurs cœurs.
-5. **Départage officiel** : appliquer les critères UEFA en cas d'égalité au classement (après les points, la différence de buts et les buts marqués).
-6. **Comparaison avec la réalité** : comparer les probabilités obtenues aux vrais résultats ou aux cotes des bookmakers pour savoir quel modèle est le meilleur.
-7. **Graphiques** : probabilités de victoire par club, comparaison des modèles.
-8. **Interface graphique**
+1. **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
+2. **Graphiques** : probabilités de victoire par club, comparaison des modèles.
+3. **Interface graphique**
 
 ## Tests automatiques
 

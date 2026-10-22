@@ -16,7 +16,7 @@ end
 @testset "buts" begin
     A = Equipe(club = "A", pays = "FR", poids = 0.5)
     B = Equipe(club = "B", pays = "ES", poids = 0)
-    modele = ModelePoisson()
+    modele = ModelePoisson(μ = 1.0)
 
     score = buts(A, B, modele)
     @test score isa Tuple{Int64, Int64}
@@ -40,7 +40,7 @@ end
     @test modele.λ_B > 0.0
 
     Random.seed!(21)
-    moyenne_A, moyenne_B = moyennes(() -> buts(A, B, ModelePoisson()))
+    moyenne_A, moyenne_B = moyennes(() -> buts(A, B, ModelePoisson(μ = 1.0)))
     @test isapprox(moyenne_A, exp(0.5), atol = 0.08)
     @test isapprox(moyenne_B, exp(-0.5), atol = 0.06)
 end
