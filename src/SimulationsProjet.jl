@@ -1,6 +1,6 @@
 module SimulationsProjet
 
-using CSV, DataFrames, Statistics, Distributions, Random
+using CSV, DataFrames, Statistics, Distributions, Random, GLMakie
 
 for fichier in ["classement_club.csv", "tirs_au_but.csv", "matchs.csv"]
     include_dependency(joinpath(@__DIR__, "../fichier", fichier))
