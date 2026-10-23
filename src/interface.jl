@@ -22,8 +22,6 @@ const WHITE = "#FFFFFF"
 
 
 function launch()
-    @eval using GLMakie
-    
     #CREATION DE LA FENETRE
     fig = Figure(size = (1280, 720), backgroundcolor = GREY, fontsize = 17)
     grille = fig[1,1] = GridLayout()
@@ -113,8 +111,8 @@ function launch()
                 else
                     Label(tableau[i + 1,j], string(df[i,j]), fontsize = 12, color = NAVY, font = :bold, halign = :center)
                 end
-                rowsize!(tableau, i, Fixed(0))
             end
+            rowsize!(tableau, i, Fixed(0))
         end
         rowsize!(tableau, nrow(df)+1, Fixed(0))
     end
