@@ -51,3 +51,15 @@ end
     @test count(==(6), parcours) == 1
     @test_throws ErrorException knockout_phase(classement[1:35], ModelePoisson())
 end
+
+@testset "seed" begin
+    @test rand(3, ModelePoisson(); seed = 1) == rand(3, ModelePoisson(); seed = 1)
+    @test rand(3, ModelePoisson(); seed = 1) != rand(3, ModelePoisson(); seed = 2)
+end
+
+@testset "rand avec plusieurs threads" begin
+    resultats = rand(20, ModelePoisson(); seed = 3)
+    @test length(resultats) == 36
+    @test all(length(rangs) == 20 for (rangs, points, parcours) in values(resultats))
+    @test sum(count(==(6), parcours) for (rangs, points, parcours) in values(resultats)) == 20
+end
