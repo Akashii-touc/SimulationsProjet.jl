@@ -1,3 +1,4 @@
+#Makie seul pour créer les graphiques sans fenêtre (tests sur GitHub)
 #Affichage : using GLMakie (ou CairoMakie pour save("graphique.png", fig))
 
 #Chances d'atteindre une étape pour les meilleurs clubs
