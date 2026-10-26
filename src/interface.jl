@@ -75,7 +75,9 @@ function launch()
         selection_cell_color_inactive = WHITE
     )
 
-    menu_affichage = Menu(menu_lateral[7,1],
+    Label(menu_lateral[7,1], "Affichage et étape", font = :bold, halign = :left)
+
+    menu_affichage = Menu(menu_lateral[8,1],
         options = ["Tableau", "Graphique"],
         default = "Tableau",
         width = 250,
@@ -84,7 +86,7 @@ function launch()
         selection_cell_color_inactive = WHITE
     )
 
-    menu_etape = Menu(menu_lateral[8,1],
+    menu_etape = Menu(menu_lateral[9,1],
         options = OPTION_ETAPES,
         default = "Vainqueur",
         width = 250,
@@ -93,7 +95,7 @@ function launch()
         selection_cell_color_inactive = WHITE
     )
 
-    run_button = Button(menu_lateral[9, 1],
+    run_button = Button(menu_lateral[10, 1],
         label = "RUN SIMULATIONS",
         labelcolor = WHITE,              # Texte en blanc
         font = :bold,
