@@ -13,6 +13,15 @@ classement_stats(rand(10000, ModeleDixonColes(); seed = 1))        # mêmes rés
 classement_stats(rand(10000, ModeleDixonColes(μ = 1.1)))           # moins de buts par match
 ```
 
+Graphiques :
+
+```julia
+df = classement_stats(rand(10000, ModeleDixonColes()))
+graphique_chances(df)                     # chances de gagner par club
+graphique_chances(df; etape = :Quart)     # autre étape
+comparaison_modeles(10000)                # les 4 modèles côte à côte
+```
+
 Exemples complets dans `exemples/test.jl`.
 
 Les simulations sont réparties sur plusieurs cœurs si Julia est lancé avec plusieurs threads : `julia -t auto` (ou réglage « Julia: Num Threads » à `auto` dans VS Code). Avec une `seed`, les résultats sont les mêmes tant que le nombre de threads ne change pas.
@@ -37,8 +46,7 @@ Les simulations sont réparties sur plusieurs cœurs si Julia est lancé avec pl
 ## Ajouts possibles
 
 1. **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
-2. **Graphiques** : probabilités de victoire par club, comparaison des modèles.
-3. **Interface graphique**
+2. **Interface graphique**
 
 ## Tests automatiques
 
