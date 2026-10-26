@@ -1,6 +1,3 @@
-#Makie seul pour créer les graphiques sans fenêtre (tests sur GitHub)
-#Affichage : using GLMakie (ou CairoMakie pour save("graphique.png", fig))
-
 #Chances d'atteindre une étape pour les meilleurs clubs
 function graphique_chances(df::DataFrame; etape = :Vainqueur, nb_clubs = 16)
     tri = first(sort(df, etape, rev = true), nb_clubs)

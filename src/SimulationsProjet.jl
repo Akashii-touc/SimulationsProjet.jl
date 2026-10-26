@@ -1,6 +1,6 @@
 module SimulationsProjet
 
-using CSV, DataFrames, Statistics, Distributions, Random, Makie
+using CSV, DataFrames, Statistics, Distributions, Random, Makie, GLMakie
 
 for fichier in ["classement_club.csv", "tirs_au_but.csv", "matchs.csv"]
     include_dependency(joinpath(@__DIR__, "../fichier", fichier))
@@ -18,9 +18,9 @@ export Equipe, equipes, proba_tab, poids_club, modif_equipe
 export rand, league_phase, knockout_phase, home_away_match, buts, final, equipe_qualifiee, shootout, voie, arbre
 export classement_stats, pourcentage
 export graphique_chances, comparaison_modeles
+export launch
 
 export  CALENDRIER, CLASSEMENT, STATS_TAB, FORCE_BRUT, POIDS_CLUBS_COEFF
-
 
 
 
@@ -30,6 +30,7 @@ include("simulation.jl")
 include("matchs.jl")
 include("statistiques.jl")
 include("graphiques.jl")
+include("interface.jl")
 
 
 end

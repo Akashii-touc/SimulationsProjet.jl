@@ -13,7 +13,7 @@ classement_stats(rand(10000, ModeleDixonColes(); seed = 1))        # mêmes rés
 classement_stats(rand(10000, ModeleDixonColes(μ = 1.1)))           # moins de buts par match
 ```
 
-Graphiques (avec `using GLMakie`) :
+Graphiques :
 
 ```julia
 df = classement_stats(rand(10000, ModeleDixonColes()))
