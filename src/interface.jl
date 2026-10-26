@@ -9,6 +9,7 @@ const OPTION_MODELES = Dict("Poisson" => ModelePoisson(),
 const MODELE_DEFAULT = "Poisson"
 const OPTION_POIDS = Dict("Coefficient UEFA" => "Coefficient_UEFA", "Elo" => "Elo")
 const POIDS_DEFAULT = "Coefficient UEFA"
+const OPTION_ETAPES = ["Vainqueur", "Finale", "Demie", "Quart", "Huitieme", "Top8"]
 
 #COULEURS
 
@@ -74,7 +75,25 @@ function launch()
         selection_cell_color_inactive = WHITE
     )
 
-    run_button = Button(menu_lateral[7, 1],
+    menu_affichage = Menu(menu_lateral[7,1],
+        options = ["Tableau", "Graphique"],
+        default = "Tableau",
+        width = 250,
+        cell_color_active = "#F9FAFB",
+        cell_color_hover = "#E5E7EB",
+        selection_cell_color_inactive = WHITE
+    )
+
+    menu_etape = Menu(menu_lateral[8,1],
+        options = OPTION_ETAPES,
+        default = "Vainqueur",
+        width = 250,
+        cell_color_active = "#F9FAFB",
+        cell_color_hover = "#E5E7EB",
+        selection_cell_color_inactive = WHITE
+    )
+
+    run_button = Button(menu_lateral[9, 1],
         label = "RUN SIMULATIONS",
         labelcolor = WHITE,              # Texte en blanc
         font = :bold,
@@ -91,11 +110,17 @@ function launch()
         for element in collect(contents(tableau))
             delete!(element)
         end
+        trim!(tableau)
         n = tryparse(Int, strip(nb_run.stored_string[]))
         poids = OPTION_POIDS[menu_poids.selection[]]
         modele = OPTION_MODELES[menu_mod.selection[]]
         classement = rand(n, modele, poids)
         df = classement_stats(classement)
+        if menu_affichage.selection[] == "Graphique"
+            rowsize!(tableau, 1, Auto())
+            graphique_chances(df; etape = Symbol(menu_etape.selection[]), fig = fig, pos = tableau[1,1])
+            return
+        end
         nom = names(df)
         for j in eachindex(nom)
             if (j == 1)
