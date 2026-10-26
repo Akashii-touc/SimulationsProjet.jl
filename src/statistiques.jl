@@ -18,6 +18,6 @@ function classement_stats(dic::Dict{String, Tuple{Vector{Int}, Vector{Int}, Vect
             pourcentage(p -> p >= 6, liste_parcours)))
     end
     sort!(lignes, by = x -> x[2], rev = true)
-    df = DataFrame(lignes, [:Club, :xPoints, :Top8, :Top24, :Elimine, :Huitieme, :Quart, :Demie, :Finale, :Vainqueur])
-    show(df, allrows = true, allcols = true)
+    return DataFrame(lignes, [:Club, :xPoints, :Top8, :Top24, :Elimine, :Huitieme, :Quart, :Demie, :Finale, :Vainqueur])
+
 end

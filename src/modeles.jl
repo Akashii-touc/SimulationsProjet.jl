@@ -2,7 +2,6 @@
 #μ multiplie les moyennes de buts, réglé pour avoir environ 3 buts par match comme en Ligue des champions
 abstract type Modele end
 
-
 #Buts indépendants qui suivent chacun une loi de Poisson
 @kwdef mutable struct ModelePoisson <: Modele
     λ_A::Float64 = 1.0
