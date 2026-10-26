@@ -1,7 +1,7 @@
 #Chances d'atteindre une étape pour les meilleurs clubs, pos pour dessiner dans une autre fenêtre
 function graphique_chances(df::DataFrame; etape = :Vainqueur, nb_clubs = 16, fig = Figure(), pos = fig[1, 1])
     tri = first(sort(df, etape, rev = true), nb_clubs)
-    ax = Axis(pos, title = string(etape), xlabel = "%", yticks = (1:nrow(tri), tri.Club), yreversed = true)
+    ax = Axis(pos, alignmode = Outside(), title = string(etape), xlabel = "%", yticks = (1:nrow(tri), tri.Club), yreversed = true)
     barplot!(ax, 1:nrow(tri), tri[!, etape], direction = :x)
     return fig
 end
