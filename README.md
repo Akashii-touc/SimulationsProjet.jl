@@ -45,8 +45,7 @@ Les simulations sont réparties sur plusieurs cœurs si Julia est lancé avec pl
 
 ## Ajouts possibles
 
-1. **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
-2. **Interface graphique**
+- **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
 
 ## Tests automatiques
 
