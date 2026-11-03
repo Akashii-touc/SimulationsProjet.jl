@@ -23,7 +23,11 @@ function home_away_match(equipes::Vector{Equipe}, modele::Modele, type_poids)
             buts_B += buts_prolongation_B
         end
         modif_poids(equipe_B, equipe_A, buts_B  - buts_aller_B, buts_A - buts_aller_A, type_poids)
-        push!(resultat, equipe_qualifiee(equipe_A, equipe_B, buts_A, buts_B))
+        gagnante = equipe_qualifiee(equipe_A, equipe_B, buts_A, buts_B)
+        if type_poids == "Coefficient_UEFA" && 2 <= gagnante.parcours <= 5
+            gagnante.poids += GAIN_POIDS[gagnante.pays] * 1.5 #huitièmes, quarts, demies ou finale atteints
+        end
+        push!(resultat, gagnante)
     end
     return resultat
 end

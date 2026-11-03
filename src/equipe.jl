@@ -1,3 +1,5 @@
+const GAIN_POIDS = Dict(p => (0.8 + 0.2 / count(==(p), CLASSEMENT.Pays)) / (maximum(FORCE_BRUT) - minimum(FORCE_BRUT)) for p in unique(CLASSEMENT.Pays))
+
 @kwdef mutable struct Equipe
     club::String #Nom du club
     pays::String #Pays du club
@@ -86,5 +88,9 @@ function modif_poids(equipe_A::Equipe, equipe_B::Equipe, buts_A, buts_B, type_po
         E_A = 1 / (1 + 10^((elo_B - elo_A) / 400))
         equipe_A.poids = (elo_A + 40 * (S_A - E_A)) / 400
         equipe_B.poids = (elo_B + 40 * (S_B - (1 - E_A))) / 400
+    elseif type_poids == "Coefficient_UEFA"
+        #2 points par victoire, 1 par nul
+        equipe_A.poids += GAIN_POIDS[equipe_A.pays] * 2 * S_A
+        equipe_B.poids += GAIN_POIDS[equipe_B.pays] * 2 * S_B
     end
 end

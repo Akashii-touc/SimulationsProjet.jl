@@ -9,6 +9,11 @@ function league_phase(modele::Modele, type_poids = "Coefficient_UEFA")
         end
     end
     classement = sort(collect(values(d)), by = e -> (e.points, e.db, e.buts_pour), rev = true)
+    if type_poids == "Coefficient_UEFA"
+        for (rang, e) in enumerate(classement[1:24])
+            e.poids += GAIN_POIDS[e.pays] * 0.25 * (25 - rang) #bonus de classement de la phase de ligue
+        end
+    end
     return(classement)
 end
 
@@ -17,6 +22,7 @@ function knockout_phase(equipes::Vector{Equipe}, modele::Modele, type_poids = "C
     if length(equipes) == 36
         for e in equipes[1:8]
             e.parcours += 2
+            type_poids == "Coefficient_UEFA" && (e.poids += GAIN_POIDS[e.pays] * 1.5) #huitièmes atteints directement
         end
         for e in equipes[9:24]
             e.parcours += 1
