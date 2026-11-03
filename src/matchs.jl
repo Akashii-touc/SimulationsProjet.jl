@@ -7,12 +7,13 @@ end
 
 
 #equipe_B est l'équipe la mieux classée. Match aller chez A, retour puis prolongation éventuelle chez B
-function home_away_match(equipes::Vector{Equipe}, modele::Modele)
+function home_away_match(equipes::Vector{Equipe}, modele::Modele, type_poids)
     resultat = Equipe[]
     for i in 1:2:length(equipes)
         equipe_A = equipes[i]
         equipe_B = equipes[i + 1]
         buts_aller_A, buts_aller_B = buts(equipe_A, equipe_B, modele; avantage = 1.2)
+        modif_poids(equipe_A, equipe_B, buts_aller_A, buts_aller_B, type_poids)
         buts_retour_B, buts_retour_A = buts(equipe_B, equipe_A, modele; avantage = 1.2)
         buts_A = buts_aller_A + buts_retour_A
         buts_B = buts_aller_B + buts_retour_B
@@ -21,6 +22,7 @@ function home_away_match(equipes::Vector{Equipe}, modele::Modele)
             buts_A += buts_prolongation_A
             buts_B += buts_prolongation_B
         end
+        modif_poids(equipe_B, equipe_A, buts_B  - buts_aller_B, buts_A - buts_aller_A, type_poids)
         push!(resultat, equipe_qualifiee(equipe_A, equipe_B, buts_A, buts_B))
     end
     return resultat

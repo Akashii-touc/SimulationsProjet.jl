@@ -25,7 +25,7 @@ end
 
 
 #Poids d'un club selon type_poids : "Coefficient_UEFA" (coefficients club et pays) ou "Elo" (Elo / 400)
-function poids_club(i, type_poids)
+function poids_club(i, type_poids = "Coefficient_UEFA")
     if type_poids == "Elo"
         return CLASSEMENT.Elo[i] / 400
     elseif type_poids == "Coefficient_UEFA"
@@ -65,4 +65,26 @@ function modif_equipe(domicile::Equipe, exterieure::Equipe, buts_dom, buts_ext)
     end
     domicile.mj += 1
     exterieure.mj += 1
+end
+
+function modif_poids(equipe_A::Equipe, equipe_B::Equipe, buts_A, buts_B, type_poids = "Coefficient_UEFA")
+    S_A = 0
+    S_B = 0
+    if buts_A > buts_B
+        S_A = 1
+        S_B = 0
+    elseif buts_A == buts_B
+        S_A = 0.5
+        S_B = 0.5
+    else
+        S_A = 0
+        S_B = 1
+    end
+    if (type_poids == "Elo")
+        elo_A = 400 * equipe_A.poids
+        elo_B = 400 * equipe_B.poids
+        E_A = 1 / (1 + 10^((elo_B - elo_A) / 400))
+        equipe_A.poids = (elo_A + 40 * (S_A - E_A)) / 400
+        equipe_B.poids = (elo_B + 40 * (S_B - (1 - E_A))) / 400
+    end
 end

@@ -5,6 +5,7 @@ function league_phase(modele::Modele, type_poids = "Coefficient_UEFA")
             dom, ext = String.(split(match, " - "))
             buts_dom, buts_ext = buts(d[dom], d[ext], modele, avantage = 1.2)
             modif_equipe(d[dom], d[ext], buts_dom, buts_ext)
+            modif_poids(d[dom], d[ext], buts_dom, buts_ext, type_poids)
         end
     end
     classement = sort(collect(values(d)), by = e -> (e.points, e.db, e.buts_pour), rev = true)
@@ -12,7 +13,7 @@ function league_phase(modele::Modele, type_poids = "Coefficient_UEFA")
 end
 
 
-function knockout_phase(equipes::Vector{Equipe}, modele::Modele)
+function knockout_phase(equipes::Vector{Equipe}, modele::Modele, type_poids = "Coefficient_UEFA")
     if length(equipes) == 36
         for e in equipes[1:8]
             e.parcours += 2
@@ -22,17 +23,17 @@ function knockout_phase(equipes::Vector{Equipe}, modele::Modele)
         end
         (voie_argent, voie_bleue) = voie(equipes[1:24])
 
-        huitieme_argent = arbre(voie_argent[1:4], home_away_match(voie_argent[5:12], modele))
-        huitieme_bleue = arbre(voie_bleue[1:4], home_away_match(voie_bleue[5:12], modele))
+        huitieme_argent = arbre(voie_argent[1:4], home_away_match(voie_argent[5:12], modele, type_poids))
+        huitieme_bleue = arbre(voie_bleue[1:4], home_away_match(voie_bleue[5:12], modele, type_poids))
 
-        quart_argent = home_away_match(huitieme_argent, modele)
-        quart_bleue = home_away_match(huitieme_bleue, modele)
+        quart_argent = home_away_match(huitieme_argent, modele, type_poids)
+        quart_bleue = home_away_match(huitieme_bleue, modele, type_poids)
 
-        demie_argent = home_away_match(quart_argent, modele)
-        demie_bleue = home_away_match(quart_bleue, modele)
+        demie_argent = home_away_match(quart_argent, modele, type_poids)
+        demie_bleue = home_away_match(quart_bleue, modele, type_poids)
 
-        finaliste_argent = home_away_match(demie_argent, modele)
-        finaliste_bleue = home_away_match(demie_bleue, modele)
+        finaliste_argent = home_away_match(demie_argent, modele, type_poids)
+        finaliste_bleue = home_away_match(demie_bleue, modele, type_poids)
         
         final([finaliste_argent; finaliste_bleue], modele)
     else
