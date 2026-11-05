@@ -1,18 +1,13 @@
 #PARAMETRES
-
 const NB_RUN_DEFAULT = 10000 #nombre de simulations par défaut
-const OPTION_MODELES = Dict("Poisson" => ModelePoisson(),
-                            "Poisson bivariée" => ModelePoissonBivariee(),
-                            "Binomiale négative" => ModeleBinomialeNegative(), 
-                            "Dixon-Coles" => ModeleDixonColes()
-                       )
+const NOMS_MODELES = ["Poisson", "Poisson bivariée", "Binomiale négative", "Dixon-Coles"] #ordre d'affichage du menu
 const MODELE_DEFAULT = "Poisson"
 const OPTION_POIDS = Dict("Coefficient UEFA" => "Coefficient_UEFA", "Elo" => "Elo")
+const NOMS_POIDS = ["Coefficient UEFA", "Elo"]
 const POIDS_DEFAULT = "Coefficient UEFA"
-const OPTION_ETAPES = ["Vainqueur", "Finale", "Demie", "Quart", "Huitieme", "Top8"]
+
 
 #COULEURS
-
 const NAVY = "#10233F"
 const NAVYBLUE = "#172B4D"
 const LIGHTBLUE = "#6B7A90"
@@ -20,6 +15,9 @@ const BLUE = "#3978F6"
 const GREEN = "#19A974"
 const GREY = "#F3F6FB"
 const WHITE = "#FFFFFF"
+
+#MENU
+const STYLE_MENU = (width = 250, cell_color_active = "#F9FAFB", cell_color_hover = "#E5E7EB", selection_cell_color_inactive = WHITE)
 
 
 function launch()
@@ -57,43 +55,15 @@ function launch()
         cornerradius = 8,
     )
     
-    menu_mod = Menu(menu_lateral[5,1],
-        options = collect(keys(OPTION_MODELES)),
-        default = MODELE_DEFAULT,
-        width = 250,
-        cell_color_active = "#F9FAFB",
-        cell_color_hover = "#E5E7EB",
-        selection_cell_color_inactive = WHITE
-    )
+    menu_mod = Menu(menu_lateral[5,1]; options = NOMS_MODELES, default = MODELE_DEFAULT, STYLE_MENU...)
 
-    menu_poids = Menu(menu_lateral[6,1],
-        options = collect(keys(OPTION_POIDS)),
-        default = POIDS_DEFAULT,
-        width = 250,
-        cell_color_active = "#F9FAFB",
-        cell_color_hover = "#E5E7EB",
-        selection_cell_color_inactive = WHITE
-    )
+    menu_poids = Menu(menu_lateral[6,1]; options = NOMS_POIDS, default = POIDS_DEFAULT, STYLE_MENU...)
 
     Label(menu_lateral[7,1], "Affichage et étape", font = :bold, halign = :left)
 
-    menu_affichage = Menu(menu_lateral[8,1],
-        options = ["Tableau", "Graphique"],
-        default = "Tableau",
-        width = 250,
-        cell_color_active = "#F9FAFB",
-        cell_color_hover = "#E5E7EB",
-        selection_cell_color_inactive = WHITE
-    )
+    menu_affichage = Menu(menu_lateral[8,1]; options = ["Tableau", "Graphique"], default = "Tableau", STYLE_MENU...)
 
-    menu_etape = Menu(menu_lateral[9,1],
-        options = OPTION_ETAPES,
-        default = "Vainqueur",
-        width = 250,
-        cell_color_active = "#F9FAFB",
-        cell_color_hover = "#E5E7EB",
-        selection_cell_color_inactive = WHITE
-    )
+    menu_etape = Menu(menu_lateral[9,1]; options = OPTION_ETAPES, default = "Vainqueur", STYLE_MENU...)
 
     run_button = Button(menu_lateral[10, 1],
         label = "RUN SIMULATIONS",
@@ -109,11 +79,14 @@ function launch()
 
     
     on(run_button.clicks) do _
+        n = tryparse(Int, strip(nb_run.stored_string[]))
+        if n === nothing || n < 1
+            return #nombre de simulations invalide : on garde l'affichage actuel
+        end
         for element in collect(contents(tableau))
             delete!(element)
         end
         trim!(tableau)
-        n = tryparse(Int, strip(nb_run.stored_string[]))
         poids = OPTION_POIDS[menu_poids.selection[]]
         modele = OPTION_MODELES[menu_mod.selection[]]
         classement = rand(n, modele, poids)
@@ -125,19 +98,11 @@ function launch()
         end
         nom = names(df)
         for j in eachindex(nom)
-            if (j == 1)
-                Label(tableau[1,j], nom[j], fontsize = 16, color = NAVY, font = :bold, halign = :left)
-            else
-                Label(tableau[1,j], nom[j], fontsize = 16, color = NAVY, font = :bold, halign = :center)
-            end
+            Label(tableau[1,j], nom[j], fontsize = 16, color = NAVY, font = :bold, halign = j == 1 ? :left : :center)
         end
         for i in 1:nrow(df)
             for j in 1:ncol(df)
-                if (j == 1)
-                    Label(tableau[i + 1,j], string(df[i,j]), fontsize = 12, color = NAVY, font = :bold, halign = :left)
-                else
-                    Label(tableau[i + 1,j], string(df[i,j]), fontsize = 12, color = NAVY, font = :bold, halign = :center)
-                end
+                Label(tableau[i + 1,j], string(df[i,j]), fontsize = 12, color = NAVY, font = :bold, halign = j == 1 ? :left : :center)
             end
             rowsize!(tableau, i, Fixed(0))
         end

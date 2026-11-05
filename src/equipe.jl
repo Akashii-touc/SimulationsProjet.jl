@@ -1,3 +1,6 @@
+const PROBA_TAB_MOYENNE = 0.75
+const PROBA_TAB_FORCE = 100
+
 const GAIN_POIDS = Dict(p => (0.8 + 0.2 / count(==(p), CLASSEMENT.Pays)) / (maximum(FORCE_BRUT) - minimum(FORCE_BRUT)) for p in unique(CLASSEMENT.Pays))
 const BONUS_TOUR = 1.5
 const BONUS_CLASSEMENT = 0.25
@@ -16,15 +19,15 @@ const BONUS_CLASSEMENT = 0.25
 end
 
 
-#Calcule la proba de marquer un tir au but d'un club depuis fichier/tirs_au_but.csv, ramenée vers 0.75 quand il y a peu de tirs (0.75 si le club est absent)
+#Calcule la proba de marquer un tir au but d'un club depuis fichier/tirs_au_but.csv, ramenée vers la moyenne quand il y a peu de tirs (moyenne si le club est absent)
 function proba_tab(club::String)
     ligne = findfirst(==(club), STATS_TAB.Club)
     if ligne === nothing
-        return 0.75
+        return PROBA_TAB_MOYENNE
     end
     tentes = STATS_TAB.tirs_tentes[ligne]
     reussis = STATS_TAB.tirs_reussis[ligne]
-    return (reussis + 0.75 * 10)/(tentes + 10)
+    return (reussis + PROBA_TAB_MOYENNE * PROBA_TAB_FORCE) / (tentes + PROBA_TAB_FORCE)
 end
 
 
