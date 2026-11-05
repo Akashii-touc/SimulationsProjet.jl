@@ -43,10 +43,6 @@ Les simulations sont réparties sur plusieurs cœurs si Julia est lancé avec pl
 - `classement_club.csv` : coefficients UEFA (club et pays) et Elo des 36 clubs.
 - `tirs_au_but.csv` : tirs au but tentés et réussis par club.
 
-## Ajouts possibles
-
-- **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
-
 ## Tests automatiques
 
 Les tests (`test/runtests.jl`) se lancent tout seuls sur GitHub :
