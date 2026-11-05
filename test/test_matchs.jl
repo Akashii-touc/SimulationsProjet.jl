@@ -1,7 +1,6 @@
 using Random
 
-equipe(nom, poids) = Equipe(nom, "FR", 0, 0, 0, 0, 0, poids, 0, 0.75)
-
+equipe(nom, poids) = Equipe(nom, "France", 0, 0, 0, 0, 0, poids, 0, 0.75)
 function moyennes(f, n = 5_000)
     total_A = 0
     total_B = 0
@@ -94,7 +93,7 @@ end
     tete_de_serie = equipe("Tête de série", log(2.0))
     modele = ModelePoisson()
     Random.seed!(24)
-    home_away_match([barragiste, tete_de_serie], modele)
+    home_away_match([barragiste, tete_de_serie], modele, "Aucun")
     @test isapprox(modele.λ_A / modele.λ_B, 1.2 * exp(2 * (tete_de_serie.poids - barragiste.poids)))
 end
 

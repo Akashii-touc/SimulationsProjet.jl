@@ -1,4 +1,6 @@
 const GAIN_POIDS = Dict(p => (0.8 + 0.2 / count(==(p), CLASSEMENT.Pays)) / (maximum(FORCE_BRUT) - minimum(FORCE_BRUT)) for p in unique(CLASSEMENT.Pays))
+const BONUS_TOUR = 1.5
+const BONUS_CLASSEMENT = 0.25
 
 @kwdef mutable struct Equipe
     club::String #Nom du club
@@ -18,11 +20,11 @@ end
 function proba_tab(club::String)
     ligne = findfirst(==(club), STATS_TAB.Club)
     if ligne === nothing
-        return(0.75)
+        return 0.75
     end
     tentes = STATS_TAB.tirs_tentes[ligne]
     reussis = STATS_TAB.tirs_reussis[ligne]
-    return((reussis + 0.75 * 10) / (tentes + 10))
+    return (reussis + 0.75 * 10)/(tentes + 10)
 end
 
 
@@ -39,14 +41,14 @@ end
 
 function equipes(type_poids = "Coefficient_UEFA")
     dic = Dict{String,Equipe}()
-    for i in 1:36
+    for i in 1:nrow(CLASSEMENT)
         nom = CLASSEMENT.Club[i]
         equipe = Equipe(club = nom, pays = CLASSEMENT.Pays[i])
         equipe.poids = poids_club(i, type_poids)
         equipe.proba_tab = proba_tab(nom)
         dic[nom] = equipe
     end
-    return(dic)
+    return dic
 end
 
 
@@ -89,7 +91,6 @@ function modif_poids(equipe_A::Equipe, equipe_B::Equipe, buts_A, buts_B, type_po
         equipe_A.poids = (elo_A + 40 * (S_A - E_A)) / 400
         equipe_B.poids = (elo_B + 40 * (S_B - (1 - E_A))) / 400
     elseif type_poids == "Coefficient_UEFA"
-        #2 points par victoire, 1 par nul
         equipe_A.poids += GAIN_POIDS[equipe_A.pays] * 2 * S_A
         equipe_B.poids += GAIN_POIDS[equipe_B.pays] * 2 * S_B
     end

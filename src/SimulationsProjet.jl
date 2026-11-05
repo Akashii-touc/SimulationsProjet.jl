@@ -15,7 +15,7 @@ const POIDS_CLUBS_COEFF = round.((FORCE_BRUT .- mean(FORCE_BRUT)) ./ (maximum(FO
 
 export ModelePoisson, ModelePoissonBivariee, ModeleDixonColes, ModeleBinomialeNegative, τ
 export Equipe, equipes, proba_tab, poids_club, modif_equipe
-export rand, league_phase, knockout_phase, home_away_match, buts, final, equipe_qualifiee, shootout, voie, arbre
+export league_phase, knockout_phase, home_away_match, buts, final, equipe_qualifiee, shootout, voie, arbre
 export classement_stats, pourcentage
 export graphique_chances, comparaison_modeles
 export launch

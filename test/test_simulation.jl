@@ -63,3 +63,20 @@ end
     @test all(length(rangs) == 20 for (rangs, points, parcours) in values(resultats))
     @test sum(count(==(6), parcours) for (rangs, points, parcours) in values(resultats)) == 20
 end
+
+@testset "calendrier précalculé" begin
+    @test length(SimulationsProjet.MATCHS) == 144
+    @test all(dom != ext for (dom, ext) in SimulationsProjet.MATCHS)
+end
+
+@testset "poids stables sur une saison" begin
+    #les poids ne doivent plus exploser (bug Elo : λ de l'ordre de 1e27 et InexactError dans Poisson)
+    for type_poids in ("Coefficient_UEFA", "Elo")
+        modele = ModeleDixonColes()
+        classement = league_phase(modele, type_poids)
+        knockout_phase(classement, modele, type_poids)
+        poids = [e.poids for e in classement]
+        @test maximum(poids) - minimum(poids) < 5
+    end
+    @test length(rand(50, ModeleDixonColes(), "Elo")) == 36
+end
