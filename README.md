@@ -21,6 +21,7 @@ graphique_chances(df)                     # chances de gagner par club
 graphique_chances(df; etape = :Quart)     # autre étape
 comparaison_modeles(10000)                # les 4 modèles côte à côte
 ```
+Les graphiques utilisent WGLMakie : ils s'affichent dans le navigateur (ou dans le panneau de tracés de VS Code), sans fenêtre OpenGL native.
 
 Exemples complets dans `exemples/test.jl`.
 
