@@ -1,3 +1,10 @@
+const PROBA_TAB_MOYENNE = 0.75
+const PROBA_TAB_FORCE = 100
+
+const GAIN_POIDS = Dict(p => (0.8 + 0.2 / count(==(p), CLASSEMENT.Pays)) / (maximum(FORCE_BRUT) - minimum(FORCE_BRUT)) for p in unique(CLASSEMENT.Pays))
+const BONUS_TOUR = 1.5
+const BONUS_CLASSEMENT = 0.25
+
 @kwdef mutable struct Equipe
     club::String #Nom du club
     pays::String #Pays du club
@@ -12,20 +19,20 @@
 end
 
 
-#Calcule la proba de marquer un tir au but d'un club depuis fichier/tirs_au_but.csv, ramenée vers 0.75 quand il y a peu de tirs (0.75 si le club est absent)
+#Calcule la proba de marquer un tir au but d'un club depuis fichier/tirs_au_but.csv, ramenée vers la moyenne quand il y a peu de tirs (moyenne si le club est absent)
 function proba_tab(club::String)
     ligne = findfirst(==(club), STATS_TAB.Club)
     if ligne === nothing
-        return(0.75)
+        return PROBA_TAB_MOYENNE
     end
     tentes = STATS_TAB.tirs_tentes[ligne]
     reussis = STATS_TAB.tirs_reussis[ligne]
-    return((reussis + 0.75 * 10) / (tentes + 10))
+    return (reussis + PROBA_TAB_MOYENNE * PROBA_TAB_FORCE) / (tentes + PROBA_TAB_FORCE)
 end
 
 
 #Poids d'un club selon type_poids : "Coefficient_UEFA" (coefficients club et pays) ou "Elo" (Elo / 400)
-function poids_club(i, type_poids)
+function poids_club(i, type_poids = "Coefficient_UEFA")
     if type_poids == "Elo"
         return CLASSEMENT.Elo[i] / 400
     elseif type_poids == "Coefficient_UEFA"
@@ -37,14 +44,14 @@ end
 
 function equipes(type_poids = "Coefficient_UEFA")
     dic = Dict{String,Equipe}()
-    for i in 1:36
+    for i in 1:nrow(CLASSEMENT)
         nom = CLASSEMENT.Club[i]
         equipe = Equipe(club = nom, pays = CLASSEMENT.Pays[i])
         equipe.poids = poids_club(i, type_poids)
         equipe.proba_tab = proba_tab(nom)
         dic[nom] = equipe
     end
-    return(dic)
+    return dic
 end
 
 
@@ -65,4 +72,29 @@ function modif_equipe(domicile::Equipe, exterieure::Equipe, buts_dom, buts_ext)
     end
     domicile.mj += 1
     exterieure.mj += 1
+end
+
+function modif_poids(equipe_A::Equipe, equipe_B::Equipe, buts_A, buts_B, type_poids = "Coefficient_UEFA")
+    S_A = 0
+    S_B = 0
+    if buts_A > buts_B
+        S_A = 1
+        S_B = 0
+    elseif buts_A == buts_B
+        S_A = 0.5
+        S_B = 0.5
+    else
+        S_A = 0
+        S_B = 1
+    end
+    if (type_poids == "Elo")
+        elo_A = 400 * equipe_A.poids
+        elo_B = 400 * equipe_B.poids
+        E_A = 1 / (1 + 10^((elo_B - elo_A) / 400))
+        equipe_A.poids = (elo_A + 40 * (S_A - E_A)) / 400
+        equipe_B.poids = (elo_B + 40 * (S_B - (1 - E_A))) / 400
+    elseif type_poids == "Coefficient_UEFA"
+        equipe_A.poids += GAIN_POIDS[equipe_A.pays] * 2 * S_A
+        equipe_B.poids += GAIN_POIDS[equipe_B.pays] * 2 * S_B
+    end
 end
