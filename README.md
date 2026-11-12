@@ -21,8 +21,11 @@ graphique_chances(df)                     # chances de gagner par club
 graphique_chances(df; etape = :Quart)     # autre étape
 comparaison_modeles(10000)                # les 4 modèles côte à côte
 ```
+Les graphiques utilisent WGLMakie : ils s'affichent dans le navigateur (ou dans le panneau de tracés de VS Code), sans fenêtre OpenGL native.
 
-Exemples complets dans `exemples/test.jl`.
+Exemples complets dans `exemples/simulation.jl`.
+
+Pour lancer l'interface WGLMakie, exécutez la ligne `serveur = launch()` du fichier `exemples/interface.jl`. Le serveur reste actif tant que la ligne `close(serveur)` n'est pas exécutée ou que la session Julia reste ouverte.
 
 Les simulations sont réparties sur plusieurs cœurs si Julia est lancé avec plusieurs threads : `julia -t auto` (ou réglage « Julia: Num Threads » à `auto` dans VS Code). Avec une `seed`, les résultats sont les mêmes tant que le nombre de threads ne change pas.
 
@@ -42,10 +45,6 @@ Les simulations sont réparties sur plusieurs cœurs si Julia est lancé avec pl
 - `matchs.csv` : calendrier des 8 journées de la phase de ligue.
 - `classement_club.csv` : coefficients UEFA (club et pays) et Elo des 36 clubs.
 - `tirs_au_but.csv` : tirs au but tentés et réussis par club.
-
-## Ajouts possibles
-
-- **Elo qui évolue** : mettre à jour l'Elo après chaque match simulé.
 
 ## Tests automatiques
 

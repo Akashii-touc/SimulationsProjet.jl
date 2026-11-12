@@ -1,3 +1,5 @@
 using SimulationsProjet
 
-launch()
+serveur = launch()
+
+close(serveur)

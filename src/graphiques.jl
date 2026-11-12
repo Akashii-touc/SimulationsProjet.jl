@@ -2,18 +2,20 @@
 function graphique_chances(df::DataFrame; etape = :Vainqueur, nb_clubs = 16, fig = Figure(), pos = fig[1, 1])
     tri = first(sort(df, etape, rev = true), nb_clubs)
     ax = Axis(pos, alignmode = Outside(), title = string(etape), xlabel = "%", yticks = (1:nrow(tri), tri.Club), yreversed = true)
+    for interaction in (:scrollzoom, :dragpan, :rectanglezoom, :limitreset)
+        deregister_interaction!(ax, interaction)
+    end
     barplot!(ax, 1:nrow(tri), tri[!, etape], direction = :x)
     return fig
 end
 
 
 #Compare les 4 modèles sur une étape, clubs choisis avec le premier modèle
-function comparaison_modeles(n::Int; etape = :Vainqueur, nb_clubs = 10)
+function comparaison_modeles(n::Int; etape = :Vainqueur, nb_clubs = 10, type_poids = "Coefficient_UEFA", seed = nothing)
     noms = ["Poisson", "Poisson bivariée", "Binomiale négative", "Dixon-Coles"]
     modeles = [ModelePoisson(), ModelePoissonBivariee(), ModeleBinomialeNegative(), ModeleDixonColes()]
-    tableaux = [classement_stats(rand(n, m)) for m in modeles]
+    tableaux = [classement_stats(rand(n, m, type_poids; seed = seed)) for m in modeles]
     clubs = first(sort(tableaux[1], etape, rev = true).Club, nb_clubs)
-
     x = Int[]
     y = Float64[]
     groupe = Int[]
@@ -24,7 +26,6 @@ function comparaison_modeles(n::Int; etape = :Vainqueur, nb_clubs = 10)
             push!(groupe, i)
         end
     end
-
     couleurs = Makie.wong_colors()
     fig = Figure(size = (1000, 500))
     ax = Axis(fig[1, 1], title = string(etape), ylabel = "%", xticks = (1:length(clubs), clubs), xticklabelrotation = π / 4)
