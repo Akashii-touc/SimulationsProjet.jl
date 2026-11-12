@@ -23,7 +23,9 @@ comparaison_modeles(10000)                # les 4 modèles côte à côte
 ```
 Les graphiques utilisent WGLMakie : ils s'affichent dans le navigateur (ou dans le panneau de tracés de VS Code), sans fenêtre OpenGL native.
 
-Exemples complets dans `exemples/test.jl`.
+Exemples complets dans `exemples/simulation.jl`.
+
+Pour lancer l'interface WGLMakie, exécutez la ligne `serveur = launch()` du fichier `exemples/interface.jl`. Le serveur reste actif tant que la ligne `close(serveur)` n'est pas exécutée ou que la session Julia reste ouverte.
 
 Les simulations sont réparties sur plusieurs cœurs si Julia est lancé avec plusieurs threads : `julia -t auto` (ou réglage « Julia: Num Threads » à `auto` dans VS Code). Avec une `seed`, les résultats sont les mêmes tant que le nombre de threads ne change pas.
 
