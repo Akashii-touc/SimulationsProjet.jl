@@ -16,7 +16,8 @@ module SimulationsProjet
     export league_phase, knockout_phase, home_away_match, buts, final, equipe_qualifiee, shootout, voie, arbre
     export classement_stats, pourcentage
     export graphique_chances, comparaison_modeles
-    export launch
+    export launch, interface
+    export RESULTATS, calculer_resultats, NOMS_MODELES, NOMS_POIDS, NB_RUN_DEFAULT
 
     export  CALENDRIER, CLASSEMENT, STATS_TAB, FORCE_BRUT, POIDS_CLUBS_COEFF
 
@@ -26,6 +27,21 @@ module SimulationsProjet
     include("matchs.jl")
     include("statistiques.jl")
     include("graphiques.jl")
-    include("interface.jl")
 
+
+    const NB_RUN_DEFAULT = 10000
+    const NOMS_MODELES = ["Poisson", "Poisson bivariée", "Binomiale négative", "Dixon-Coles"]
+    const OPTION_MODELES = Dict("Poisson" => ModelePoisson(), "Poisson bivariée" => ModelePoissonBivariee(), "Binomiale négative" => ModeleBinomialeNegative(), "Dixon-Coles" => ModeleDixonColes())
+    const NOMS_POIDS = ["Coefficient UEFA", "Elo"]
+    const OPTION_POIDS = Dict("Coefficient UEFA" => "Coefficient_UEFA", "Elo" => "Elo")
+
+    const RESULTATS = Dict{Tuple{String, String}, DataFrame}()
+
+    function calculer_resultats(;seed = nothing)
+        for nom_modele in NOMS_MODELES, nom_poids in NOMS_POIDS
+            RESULTATS[(nom_modele, nom_poids)] = classement_stats(rand(NB_RUN_DEFAULT, OPTION_MODELES[nom_modele], OPTION_POIDS[nom_poids]; seed = seed))
+        end
+        return RESULTATS
+    end
+    include("interface.jl")
 end
