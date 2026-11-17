@@ -1,6 +1,5 @@
 const PROBA_TAB_MOYENNE = 0.75
 const PROBA_TAB_FORCE = 100
-
 const GAIN_POIDS = Dict(p => (0.8 + 0.2 / count(==(p), CLASSEMENT.Pays)) / (maximum(FORCE_BRUT) - minimum(FORCE_BRUT)) for p in unique(CLASSEMENT.Pays))
 const BONUS_TOUR = 1.5
 const BONUS_CLASSEMENT = 0.25
@@ -75,8 +74,6 @@ function modif_equipe(domicile::Equipe, exterieure::Equipe, buts_dom, buts_ext)
 end
 
 function modif_poids(equipe_A::Equipe, equipe_B::Equipe, buts_A, buts_B, type_poids = "Coefficient_UEFA")
-    S_A = 0
-    S_B = 0
     if buts_A > buts_B
         S_A = 1
         S_B = 0
@@ -96,5 +93,7 @@ function modif_poids(equipe_A::Equipe, equipe_B::Equipe, buts_A, buts_B, type_po
     elseif type_poids == "Coefficient_UEFA"
         equipe_A.poids += GAIN_POIDS[equipe_A.pays] * 2 * S_A
         equipe_B.poids += GAIN_POIDS[equipe_B.pays] * 2 * S_B
+    else
+        error("type_poids inconnu : $type_poids (\"Coefficient_UEFA\" ou \"Elo\")")
     end
 end
