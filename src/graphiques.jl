@@ -11,10 +11,10 @@ end
 
 
 #Compare les 4 modèles sur une étape, clubs choisis avec le premier modèle
-function comparaison_modeles(n::Int; etape = :Vainqueur, nb_clubs = 10, type_poids = "Coefficient_UEFA", seed = nothing)
+function comparaison_modeles(n::Int; etape = :Vainqueur, nb_clubs = 10, poids::Poids = PoidsUEFA(), seed = nothing)
     noms = ["Poisson", "Poisson bivariée", "Binomiale négative", "Dixon-Coles"]
     modeles = [ModelePoisson(), ModelePoissonBivariee(), ModeleBinomialeNegative(), ModeleDixonColes()]
-    tableaux = [classement_stats(rand(n, m, type_poids; seed = seed)) for m in modeles]
+    tableaux = [classement_stats(rand(n, m, poids; seed = seed)) for m in modeles]
     clubs = first(sort(tableaux[1], etape, rev = true).Club, nb_clubs)
     x = Int[]
     y = Float64[]

@@ -13,7 +13,9 @@ module SimulationsProjet
 
     export ModelePoisson, ModelePoissonBivariee, ModeleDixonColes, ModeleBinomialeNegative, τ
     export Equipe, equipes, proba_tab, poids_club, modif_equipe
-    export league_phase, knockout_phase, home_away_match, buts, final, equipe_qualifiee, shootout, voie, arbre
+    export Poids, PoidsUEFA, PoidsElo
+    export Phase, PhaseLigue, AllerRetour, Finale, PhaseEliminatoire, jouer
+    export buts, equipe_qualifiee, shootout, voie, arbre
     export classement_stats, pourcentage
     export graphique_chances, comparaison_modeles
     export launch, interface
@@ -22,9 +24,11 @@ module SimulationsProjet
     export  CALENDRIER, CLASSEMENT, STATS_TAB, FORCE_BRUT, POIDS_CLUBS_COEFF
 
     include("equipe.jl")
+    include("poids.jl")
     include("modeles.jl")
-    include("simulation.jl")
+    include("phases.jl")
     include("matchs.jl")
+    include("simulation.jl")
     include("statistiques.jl")
     include("graphiques.jl")
 
@@ -33,7 +37,7 @@ module SimulationsProjet
     const NOMS_MODELES = ["Poisson", "Poisson bivariée", "Binomiale négative", "Dixon-Coles"]
     const OPTION_MODELES = Dict("Poisson" => ModelePoisson(), "Poisson bivariée" => ModelePoissonBivariee(), "Binomiale négative" => ModeleBinomialeNegative(), "Dixon-Coles" => ModeleDixonColes())
     const NOMS_POIDS = ["Coefficient UEFA", "Elo"]
-    const OPTION_POIDS = Dict("Coefficient UEFA" => "Coefficient_UEFA", "Elo" => "Elo")
+    const OPTION_POIDS = Dict("Coefficient UEFA" => PoidsUEFA(), "Elo" => PoidsElo())
 
     const RESULTATS = Dict{Tuple{String, String}, DataFrame}()
 
