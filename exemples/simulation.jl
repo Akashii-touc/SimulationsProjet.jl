@@ -1,12 +1,12 @@
 using SimulationsProjet
 
 
-show(classement_stats(rand(10000, ModelePoisson())), allrows = true, allcols = true)
+stats_poisson = classement_stats(rand(1000, ModelePoisson()))
 
-show(classement_stats(rand(10000, ModelePoissonBivariee())), allrows = true, allcols = true)
+stats_poisson_biv = classement_stats(rand(1000, ModelePoissonBivariee()))
 
-show(classement_stats(rand(10000, ModeleBinomialeNegative())), allrows = true, allcols = true)
+stats_bin = classement_stats(rand(1000, ModeleBinomialeNegative()))
 
-show(classement_stats(rand(1000000, ModeleDixonColes())), allrows = true, allcols = true)
+stats_dc = classement_stats(rand(1000, ModeleDixonColes()))
 
-show(classement_stats(rand(10000, ModeleDixonColes(), "Elo")), allrows = true, allcols = true)
+stats_elo_dc = classement_stats(rand(1000, ModeleDixonColes(), "Elo"))

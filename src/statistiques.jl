@@ -1,5 +1,5 @@
 function pourcentage(condition, liste)
-    return(round(100 * count(condition, liste) / length(liste), digits = 2))
+    return round(100 * count(condition, liste) / length(liste), digits = 2)
 end
 
 
@@ -19,5 +19,4 @@ function classement_stats(dic::Dict{String, Tuple{Vector{Int}, Vector{Int}, Vect
     end
     sort!(lignes, by = x -> x[2], rev = true)
     return DataFrame(lignes, [:Club, :xPoints, :Top8, :Top24, :Elimine, :Huitieme, :Quart, :Demie, :Finale, :Vainqueur])
-
 end

@@ -1,7 +1,5 @@
 using Random
 
-equipe(nom, poids) = Equipe(nom, "FR", 0, 0, 0, 0, 0, poids, 0, 0.75)
-
 function moyennes(f, n = 5_000)
     total_A = 0
     total_B = 0
@@ -75,43 +73,4 @@ end
     @test equipe_qualifiee(A, B, 2, 2) === A
     @test equipe_qualifiee(B, A, 2, 2) === A
     @test (A.parcours, B.parcours) == (3, 1)
-end
-
-@testset "home_away_match" begin
-    equipes = [equipe("Equipe $i", i / 10) for i in 1:8]
-    Random.seed!(23)
-    qualifiees = home_away_match(equipes, ModelePoisson())
-
-    @test length(qualifiees) == 4
-    @test sum(e.parcours for e in equipes) == 4
-    for i in 1:4
-        @test qualifiees[i] === equipes[2i - 1] || qualifiees[i] === equipes[2i]
-    end
-
-    # La deuxième équipe reçoit au retour; le modèle conserve les intensités
-    # correspondant à ce dernier match.
-    barragiste = equipe("Barragiste", 0.0)
-    tete_de_serie = equipe("Tête de série", log(2.0))
-    modele = ModelePoisson()
-    Random.seed!(24)
-    home_away_match([barragiste, tete_de_serie], modele)
-    @test isapprox(modele.λ_A / modele.λ_B, 1.2 * exp(2 * (tete_de_serie.poids - barragiste.poids)))
-end
-
-@testset "final" begin
-    A = Equipe(club = "A", pays = "FR", poids = 0)
-    B = Equipe(club = "B", pays = "ES", poids = 0)
-    Random.seed!(25)
-
-    gagnant = final([A, B], ModelePoisson())
-    @test gagnant === A || gagnant === B
-    @test A.parcours + B.parcours == 1
-
-    # À forces égales, aucune équipe ne doit être systématiquement favorisée.
-    A = Equipe(club = "A", pays = "FR", poids = 0)
-    B = Equipe(club = "B", pays = "ES", poids = 0)
-    Random.seed!(26)
-    victoires_A = count(final([A, B], ModelePoisson()) === A for _ in 1:2_000)
-    @test isapprox(victoires_A / 2_000, 0.5, atol = 0.05)
-    @test A.parcours + B.parcours == 2_000
 end

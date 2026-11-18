@@ -1,3 +1,8 @@
+const PROBA_TAB_MOYENNE = 0.75
+const PROBA_TAB_FORCE = 100
+const GAIN_POIDS = Dict(p => (0.8 + 0.2 / count(==(p), CLASSEMENT.Pays)) / (maximum(FORCE_BRUT) - minimum(FORCE_BRUT)) for p in unique(CLASSEMENT.Pays))
+
+
 @kwdef mutable struct Equipe
     club::String #Nom du club
     pays::String #Pays du club
@@ -12,39 +17,27 @@
 end
 
 
-#Calcule la proba de marquer un tir au but d'un club depuis fichier/tirs_au_but.csv, ramenée vers 0.75 quand il y a peu de tirs (0.75 si le club est absent)
 function proba_tab(club::String)
     ligne = findfirst(==(club), STATS_TAB.Club)
     if ligne === nothing
-        return(0.75)
+        return PROBA_TAB_MOYENNE
     end
     tentes = STATS_TAB.tirs_tentes[ligne]
     reussis = STATS_TAB.tirs_reussis[ligne]
-    return((reussis + 0.75 * 10) / (tentes + 10))
+    return (reussis + PROBA_TAB_MOYENNE * PROBA_TAB_FORCE) / (tentes + PROBA_TAB_FORCE)
 end
 
 
-#Poids d'un club selon type_poids : "Coefficient_UEFA" (coefficients club et pays) ou "Elo" (Elo / 400)
-function poids_club(i, type_poids)
-    if type_poids == "Elo"
-        return CLASSEMENT.Elo[i] / 400
-    elseif type_poids == "Coefficient_UEFA"
-        return POIDS_CLUBS_COEFF[i]
-    end
-    error("type_poids inconnu : $type_poids (\"Coefficient_UEFA\" ou \"Elo\")")
-end
-
-
-function equipes(type_poids = "Coefficient_UEFA")
+function equipes(poids = PoidsUEFA())
     dic = Dict{String,Equipe}()
-    for i in 1:36
+    for i in 1:nrow(CLASSEMENT)
         nom = CLASSEMENT.Club[i]
         equipe = Equipe(club = nom, pays = CLASSEMENT.Pays[i])
-        equipe.poids = poids_club(i, type_poids)
+        equipe.poids = poids_club(i, poids)
         equipe.proba_tab = proba_tab(nom)
         dic[nom] = equipe
     end
-    return(dic)
+    return dic
 end
 
 

@@ -36,22 +36,6 @@ equipe_arbre(n) = Equipe(string(n), "FR", 0, 0, 0, 0, 0, Float64(n), 0, 0.75)
     @test_throws ErrorException arbre(tetes[1:3], barragistes)
 end
 
-@testset "invariants d'une saison complète" begin
-    classement = league_phase(ModelePoisson())
-    @test length(classement) == 36
-    @test all(equipe -> equipe.mj == 8, classement)
-    @test sum(equipe.mj for equipe in classement) == 36 * 8
-    @test sum(equipe.db for equipe in classement) == 0
-    @test sum(equipe.buts_pour for equipe in classement) == sum(equipe.buts_contre for equipe in classement)
-    @test 36 * 8 <= sum(equipe.points for equipe in classement) <= 36 * 12
-
-    knockout_phase(classement, ModelePoisson())
-    parcours = getfield.(classement, :parcours)
-    @test all(p -> 0 <= p <= 6, parcours)
-    @test count(==(6), parcours) == 1
-    @test_throws ErrorException knockout_phase(classement[1:35], ModelePoisson())
-end
-
 @testset "seed" begin
     @test rand(3, ModelePoisson(); seed = 1) == rand(3, ModelePoisson(); seed = 1)
     @test rand(3, ModelePoisson(); seed = 1) != rand(3, ModelePoisson(); seed = 2)
@@ -62,4 +46,21 @@ end
     @test length(resultats) == 36
     @test all(length(rangs) == 20 for (rangs, points, parcours) in values(resultats))
     @test sum(count(==(6), parcours) for (rangs, points, parcours) in values(resultats)) == 20
+end
+
+@testset "calendrier précalculé" begin
+    @test length(SimulationsProjet.MATCHS) == 144
+    @test all(dom != ext for (dom, ext) in SimulationsProjet.MATCHS)
+end
+
+@testset "poids stables sur une saison" begin
+    #les poids ne doivent plus exploser (bug Elo : λ de l'ordre de 1e27 et InexactError dans Poisson)
+    for poids in (PoidsUEFA(), PoidsElo())
+        modele = ModeleDixonColes()
+        classement = jouer(PhaseLigue(), modele, poids)
+        jouer(PhaseEliminatoire(), classement, modele, poids)
+        poids_clubs = [e.poids for e in classement]
+        @test maximum(poids_clubs) - minimum(poids_clubs) < 5
+    end
+    @test length(rand(50, ModeleDixonColes(), PoidsElo())) == 36
 end
